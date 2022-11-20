@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "store",
+    "category",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -71,6 +73,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "digikart.wsgi.application"
+
+#Using custom user model
+AUTH_USER_MODEL='accounts.Account'
 
 
 # Database
