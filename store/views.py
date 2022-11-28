@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404
-
+from django.views.decorators.cache import cache_control
 from .models import Product
 from category.models import Category
 
 
 # Create your views here.
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home(request):
 
     products = Product.objects.all().filter(is_available=True)
@@ -49,3 +50,5 @@ def product_detail(request, category_slug, product_slug):
     }
 
     return render(request, 'store/product_detail.html',context)
+
+

@@ -1,0 +1,65 @@
+{% extends 'admin/adminbase.html' %}
+{% block content %}
+
+<!-- ========================= SECTION CONTENT ========================= -->
+<section class="section-conten padding-y bg">
+  <div class="container">
+    <div class="row">
+      <aside class="col-md-3">
+        <!--   SIDEBAR   -->
+        <ul class="list-group">
+          <a class="list-group-item" href="{% url 'admin_home' %}"> Dashboard </a>
+          <a class="list-group-item active" href="{% url 'admin_user' %}">User Management </a>
+          <a class="list-group-item" href="{% url 'admin_category' %}">Category Management</a>
+          <a class="list-group-item" href="{% url 'admin_product' %}">Product Management</a>
+          <a class="list-group-item" href="{% url 'admin_order' %}">Order Management </a>
+        </ul>
+        <br />
+        <a class="btn btn-light btn-block" href="#">
+          <i class="fa fa-power-off"></i> <span class="text">Log out</span>
+        </a>
+        <!--   SIDEBAR .//END   -->
+      </aside>
+        <main class="col-md-9">
+          {% for m in messages %}
+          <div class="alert alert-danger" role="alert">{{m}}</div>
+          {% endfor %}
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone number</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  {% for x in  account %}
+                  <tr>
+                    
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{x.first_name}}</td>
+                    <td>{{x.last_name}}</td>
+                    <td>{{x.email}}</td>
+                    <td>{{x.phone_number}}</td>
+                    <td><a href="{% url 'unblock' x.id %}"><button type="button" class="btn btn-success"> Unblock </button></a></td>
+                    <td><a href="{% url 'block' x.id %}"><button type="button" class="btn btn-danger">Block</button></a></td>
+                   
+                  </tr>
+
+                  {% endfor %}
+                 
+                </tbody>
+              </table>
+        </main>
+    </div> <!-- row.// -->
+    </div>
+    
+    
+    </section>
+    <!-- ========================= SECTION CONTENT END// ========================= -->
+
+
+{% endblock %}

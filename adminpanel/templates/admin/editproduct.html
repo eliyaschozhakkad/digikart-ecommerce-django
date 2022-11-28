@@ -1,0 +1,81 @@
+{% extends 'admin/adminbase.html' %}
+{% block content %}
+<!-- ========================= SECTION CONTENT ========================= -->
+<!-- ========================= SECTION CONTENT ========================= -->
+<section class="section-conten padding-y bg">
+    <div class="container">
+      <div class="row">
+        <aside class="col-md-3">
+          <!--   SIDEBAR   -->
+          <ul class="list-group">
+            <a class="list-group-item" href="{% url 'admin_home' %}"> Dashboard </a>
+            <a class="list-group-item " href="{% url 'admin_user' %}">User Management </a>
+            <a class="list-group-item " href="{% url 'admin_category' %}">Category Management</a>
+            <a class="list-group-item active" href="{% url 'admin_product' %}">Product Management</a>
+            <a class="list-group-item" href="{% url 'admin_order' %}">Order Management </a>
+          </ul>
+          <br />
+          <a class="btn btn-light btn-block" href="#">
+            <i class="fa fa-power-off"></i> <span class="text">Log out</span>
+          </a>
+          <!--   SIDEBAR .//END   -->
+        </aside>
+  <main class="col-md-9">
+    <header class="mb-4"><h4 class="card-title">Edit Product</h4></header>
+    <form action="" method="POST">
+        {% csrf_token %}
+            <div class="form-row">
+                <div class="col form-group">
+                    <label>Product Name</label>
+                      <input type="text" class="form-control" name="prodname" placeholder="Enter Product name" required>
+                </div> <!-- form-group end.// -->
+                <div class="col form-group">
+                    <label>Product Price </label>
+                      <input type="number" class="form-control" name="prodprice" placeholder="Enter Product price" required>
+                </div> <!-- form-group end.// -->
+            </div> <!-- form-row end.// -->
+            <div class="form-row">
+                <div class="col form-group">
+                    <label>Stock</label>
+                      <input type="number" class="form-control" name="stock" placeholder="Enter Stock" required>
+                </div> <!-- form-group end.// -->
+                <div class="col form-group">
+                  
+                    <label for="cat">Category</label>
+                    
+                    <select class="form-control"  id="cat" name="cat">
+                      {% for a in link  %}
+                        <option value="{{a.category_name}}">{{a.category_name}}</option>
+                        
+                        {% endfor %}
+                      </select>
+                      
+                      
+                </div> <!-- form-group end.// -->
+            </div> <!-- form-row end.// -->
+
+          
+          
+          
+            
+           
+            <div class="form-group col-3">
+              <button type="submit" class="btn btn-primary btn-block"> Submit </button>
+          </div> <!-- form-group// -->  
+                
+                
+        </form>
+    
+          
+           
+  </main>
+  </div> <!-- row.// -->
+  </div>
+  
+  
+  </section>
+  <!-- ========================= SECTION CONTENT END// ========================= -->
+  
+
+
+{% endblock %}
