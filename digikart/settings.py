@@ -72,6 +72,7 @@ TEMPLATES = [
                 "category.context_processors.menu_links",
                 "store.context_processors.product_items",
                 "accounts.context_processors.accounts",
+                "carts.context_processors.counter",
                
             ],
         },
