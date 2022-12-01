@@ -33,7 +33,7 @@ variation_category_choice=(
     ('ram','ram'),
 )
 
-class Variation(models.Model):
+class  Variation(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
     variation_category=models.CharField(max_length=100,choices=variation_category_choice)
     variation_value=models.CharField(max_length=100)
@@ -43,5 +43,5 @@ class Variation(models.Model):
     objects=VariationManager()
 
     def __str__(self):
-        return self.product.product_name
+        return self.variation_value
     
