@@ -80,11 +80,42 @@ def signin(request):
                 
                 if is_cart_item_exists:
                     cart_item=CartItem.objects.filter(cart=cart)
+
+                    #Getting product varaiation by card id
+
+                    product_variation=[]
                     for item in cart_item:
-                        item.user=user
-                        item.save()
+                        variations=item.variations.all()
+                        product_variation.append(list(variations))
+
+                    #Get the cart items from the user to access his product variations
+                    cart_item=CartItem.objects.filter(user=user)
+                    ex_var_list=[]
+                    id=[]
+                    for item in cart_item:
+                        existing_variations=item.variations.all()
+                        ex_var_list.append(list(existing_variations))
+                        id.append(item.id)
+
+                    #product variation=[1,3,5,6,8]
+                    #ex_var_list=[3,5,6,7]
+
+                    for pr in product_variation:
+                        if pr in ex_var_list:
+                            index=ex_var_list.index(pr)
+                            item_id=id[index]
+                            item=CartItem.objects.get(id=item_id)
+                            item.quantity+=1
+                            item.user=user
+                            item.save()
+                        else:
+                            cart_item=CartItem.objects.get(cart=cart)
+                            for item in cart_item:
+                                item.user=user
+                                item.save()
+
             except:
-                print('except block')
+              
                 pass
 
             login(request,user)
