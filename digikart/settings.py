@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "debug_toolbar",
     "store",
     "category",
     "accounts",
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -159,3 +161,10 @@ EMAIL_PORT='587'
 EMAIL_HOST_USER='elyaschs2b@gmail.com'
 EMAIL_HOST_PASSWORD='quchhijuhppsukrc'
 EMAIL_USE_TLS=True
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
+
