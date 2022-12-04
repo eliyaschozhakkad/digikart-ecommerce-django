@@ -6,6 +6,7 @@ from .models import Account
 from .forms import RegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+import requests
 
 #Email verification
 from django.contrib.sites.shortcuts import get_current_site
@@ -114,12 +115,22 @@ def signin(request):
                                 item.user=user
                                 item.save()
 
-            except:
-              
+            except:          
                 pass
 
             login(request,user)
-            return redirect('home')
+            url=request.META.get('HTTP_REFERER')
+            try:
+                query=requests.utils.urlparse(url).query
+                
+                # next=/cart/checkout/
+                params=dict(x.split('=') for x in query.split('&'))
+                if 'next' in params:
+                    nextPage=params['next']
+                    return redirect(nextPage)
+
+            except:
+                return redirect('home')
         
         else:
             messages.error(request,'Invalid login Credentials')
