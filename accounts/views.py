@@ -72,7 +72,7 @@ def signin(request):
 
         user=authenticate(email=email,password=password)
 
-        if user is not None:
+        if user is not None and not user.is_superadmin:
             try:
                 
                 cart=Cart.objects.get(cart_id=_cart_id(request))
