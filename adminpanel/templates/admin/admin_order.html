@@ -13,10 +13,11 @@
             <a class="list-group-item" href="{% url 'admin_user' %}">User Management </a>
             <a class="list-group-item" href="{% url 'admin_category' %}">Category Management</a>
             <a class="list-group-item" href="{% url 'admin_product' %}">Product Management</a>
+            <a class="list-group-item" href="{% url 'admin_variation' %}">Variation Management</a>
             <a class="list-group-item active" href="{% url 'admin_order' %}">Order Management </a>
           </ul>
           <br />
-          <a class="btn btn-light btn-block" href="#">
+          <a class="btn btn-light btn-block" href="{% url 'admin_signout' %}">
             <i class="fa fa-power-off"></i> <span class="text">Log out</span>
           </a>
           <!--   SIDEBAR .//END   -->

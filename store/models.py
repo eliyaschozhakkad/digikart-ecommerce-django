@@ -1,6 +1,7 @@
 from django.db import models
 from category.models import Category
 from django.urls import reverse
+from django.utils.text import slugify
 
 # Create your models here.
 class Product(models.Model):
@@ -20,6 +21,11 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
+
+    def save(self, *args, **kwargs):  # Stackoverflow
+        if not self.slug:
+            self.slug = slugify(self.product_name)
+        return super().save(*args, **kwargs)
 
 
 class VariationManager(models.Manager):

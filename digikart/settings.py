@@ -73,6 +73,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "category.context_processors.menu_links",
+                "category.context_processors.variations",
                 "store.context_processors.product_items",
                 "accounts.context_processors.accounts",
                 "carts.context_processors.counter",

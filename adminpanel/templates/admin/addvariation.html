@@ -10,9 +10,9 @@
           <ul class="list-group">
             <a class="list-group-item" href="{% url 'admin_home' %}"> Dashboard </a>
             <a class="list-group-item " href="{% url 'admin_user' %}">User Management </a>
-            <a class="list-group-item active" href="{% url 'admin_category' %}">Category Management</a>
-            <a class="list-group-item" href="{% url 'admin_product' %}">Product Management</a>
-            <a class="list-group-item" href="{% url 'admin_variation' %}">Variation Management</a>
+            <a class="list-group-item " href="{% url 'admin_category' %}">Category Management</a>
+            <a class="list-group-item " href="{% url 'admin_product' %}">Product Management</a>
+            <a class="list-group-item active" href="{% url 'admin_variation' %}">Variation Management</a>
             <a class="list-group-item" href="{% url 'admin_order' %}">Order Management </a>
           </ul>
           <br />
@@ -22,21 +22,23 @@
           <!--   SIDEBAR .//END   -->
         </aside>
   <main class="col-md-9">
-    <header class="mb-4"><h4 class="card-title">Edit Category</h4></header>
-    <form action="" method="POST">
+    <main class="col-md-9">
+      <header class="mb-4"><h4 class="card-title">Add Variation</h4></header>
+      <form action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        
-             <div class="form-row">
-                <div class="col form-group">
-                  {{categoryform.as_p}}
-                  
-                  <button type="submit" class="btn btn-primary btn-block col-3"> Submit </button>
-                  </div>                  
-                </div>                 
-        </form>
-    
-            
+          {{variationform.as_p}}
            
+           
+           
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block col-2"> Submit </button>
+            </div> <!-- form-group// -->      
+                
+        </form>
+      
+              
+             
+    </main>
   </main>
   </div> <!-- row.// -->
   </div>

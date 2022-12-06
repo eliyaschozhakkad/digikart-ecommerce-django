@@ -16,10 +16,10 @@
           <a class="list-group-item" href="{% url 'admin_category' %}"
             >Category Management</a
           >
-          <a class="list-group-item active" href="{% url 'admin_product' %}"
+          <a class="list-group-item " href="{% url 'admin_product' %}"
             >Product Management</a
           >
-          <a class="list-group-item" href="{% url 'admin_variation' %}">Variation Management</a>
+          <a class="list-group-item active" href="{% url 'admin_variation' %}">Variation Management</a>
           <a class="list-group-item" href="{% url 'admin_order' %}"
             >Order Management
           </a>
@@ -31,11 +31,11 @@
         <!--   SIDEBAR .//END   -->
       </aside>
       <main class="col-md-9">
-        <header class="mb-4"><h4 class="card-title">Edit Product</h4></header>
+        <header class="mb-4"><h4 class="card-title">Edit Variation</h4></header>
         <form action="" method="POST" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="form-group" >
-            {{productform.as_p}}
+            {{variationform.as_p}}
             <button type="submit" name="submit" class="btn btn-primary btn-block col-2">
               Submit
             </button>
