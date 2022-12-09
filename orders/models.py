@@ -7,6 +7,8 @@ from store.models import Product,Variation
 class Payment(models.Model):
     user=models.ForeignKey(Account,on_delete=models.CASCADE)
     payment_id=models.CharField(max_length=100)
+    order_id = models.CharField(max_length=130,blank=True)
+    order_number = models.CharField(max_length=50, blank=True)
     payment_method=models.CharField(max_length=100)
     amount_paid=models.CharField(max_length=100)#Total Amount paid
     status=models.CharField(max_length=100)
@@ -14,6 +16,10 @@ class Payment(models.Model):
 
     def __str(self):
         return self.payment_id
+    
+    def paymentmethod(self):
+        return self.payment_method
+
 
 class Order(models.Model):
 
@@ -38,7 +44,7 @@ class Order(models.Model):
     city=models.CharField(max_length=50)
     order_total=models.FloatField()
     tax=models.FloatField()
-    status=models.CharField(max_length=10,choices=STATUS,default='New')
+    status=models.CharField(max_length=50,choices=STATUS,default='New')
     ip=models.CharField(max_length=20,blank=True)
     is_ordered=models.BooleanField(default=False)
     created_at=models.DateTimeField(auto_now_add=True)
@@ -57,9 +63,7 @@ class OrderProduct(models.Model):
     payment=models.ForeignKey(Payment,on_delete=models.CASCADE)
     user=models.ForeignKey(Account,on_delete=models.CASCADE)
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
-    variation=models.ForeignKey(Variation,on_delete=models.CASCADE)
-    color=models.CharField(max_length=50)
-    ram=models.CharField(max_length=50)
+    variation = models.ManyToManyField(Variation, blank=True)
     quantity=models.IntegerField()
     product_price=models.FloatField()
     ordered=models.BooleanField(default=False)

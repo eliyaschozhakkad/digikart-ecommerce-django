@@ -5,25 +5,25 @@
 <section class="section-conten padding-y bg">
   <div class="container">
     <div class="row">
-      <aside class="col-md-3">
-        <!--   SIDEBAR   -->
-        <ul class="list-group">
-          <a class="list-group-item" href="{% url 'admin_home' %}"> Dashboard </a>
-          <a class="list-group-item " href="{% url 'admin_user' %}">User Management </a>
-          <a class="list-group-item active" href="{% url 'admin_category' %}">Category Management</a>
-          <a class="list-group-item" href="{% url 'admin_product' %}">Product Management</a>
-          <a class="list-group-item" href="{% url 'admin_variation' %}">Variation Management</a>
-          <a class="list-group-item" href="{% url 'admin_order' %}">Order Management </a>
-        </ul>
-        <br />
-        <a class="btn btn-light btn-block" href="{% url 'admin_signout' %}">
-          <i class="fa fa-power-off"></i> <span class="text">Log out</span>
-        </a>
-        <!--   SIDEBAR .//END   -->
-      </aside>
+     {% include 'admin/adminincludes/admindashboard.html' %}
       
       <main class="col-md-9">
-
+        <div class="d-flex justify-content-between">
+        <a href="{% url 'add_category' %}"><button type="button" class="btn btn-success">Add Category</button></a>
+        <form action="" class="search" method="POST">
+          {% csrf_token %}
+          <div class="input-group w-100">
+              <input type="text" class="form-control" style="width:60%;" placeholder="Search" name="keyword">
+              
+              <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
+          </div>
+      </form> <!-- search-wrap .end// -->
+    </div>
+      
         
   
           {% for m in messages %}
@@ -40,21 +40,48 @@
            
         </thead>
         <tbody>
-            {% for categories in link  %}
+          
+            {% for category in category  %}
           <tr>
             <th scope="row">{{forloop.counter}}</th>
-            <td>{{categories.category_name}}</td>
-            <td>{{categories.slug}}</td>
-            <td>{{categories.description}}</td>
-            <td><a href="{% url 'cat_edit' categories.id %}"><button type="button" class="btn btn-secondary"> Edit </button></a></td>
-            <td><a href="{% url 'cat_delete' categories.id %}" onclick="return confirm('Are you sure you want to delete this category?')"><button type="button" class="btn btn-danger">Delete</button></a></td>
+            <td>{{category.category_name}}</td>
+            <td>{{category.slug}}</td>
+            <td>{{category.description}}</td>
+            <td><a href="{% url 'cat_edit' category.id %}"><button type="button" class="btn btn-secondary"> Edit </button></a></td>
+            <td><a href="{% url 'cat_delete' category.id %}" onclick="return confirm('Are you sure you want to delete this category?')"><button type="button" class="btn btn-danger">Delete</button></a></td>
             
           </tr>
           {% endfor %}
-          <a href="{% url 'add_category' %}"><button type="button" class="btn btn-success">Add Category</button>
+          
         </tbody>
       </table>
+      <nav class="mt-4" aria-label="Page navigation sample">
+        {% if category.has_other_pages %}
+      <ul class="pagination">
+        {% if category.has_previous %}
+        <li class="page-item "><a class="page-link" href="?page={{category.previous_page_number}}">Previous</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+        {% endif %}
+      
+        {% for i in category.paginator.page_range %}
+        {% if category.number == i  %}
+        <li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
+        {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+        {% endif %}
+        {% endfor %}
+      
+        {% if category.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{category.next_page_number}}">Next</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+        {% endif %}
+      </ul>
+        {% endif %}
+      </nav>
 </main>
+
 
 </div> <!-- row.// -->
 

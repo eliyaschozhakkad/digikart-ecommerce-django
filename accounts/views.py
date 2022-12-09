@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import cache_control
 from .models import Account
+from orders.models import OrderProduct,Order
 from .forms import RegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -111,7 +112,7 @@ def signin(request):
                             item.user = user
                             item.save()
                         else:
-                            cart_item = CartItem.objects.get(cart=cart)
+                            cart_item = CartItem.objects.filter(cart=cart)
                             for item in cart_item:
                                 item.user = user
                                 item.save()
@@ -236,3 +237,19 @@ def resetPassword(request):
 
     else:
         return render(request, "accounts/resetPassword.html")
+
+
+@login_required(login_url ='login')
+def order_detail(request, order_id):
+    order_detail = OrderProduct.objects.filter(order__order_number=order_id)
+    order = Order.objects.get(order_number=order_id)
+    subtotal = 0
+    for i in order_detail:
+        subtotal += i.product_price * i.quantity
+    context = {
+        'order_detail': order_detail,
+        'order': order,
+        'subtotal': subtotal,
+        
+    }
+    return render(request, 'accounts/order_detail.html', context)

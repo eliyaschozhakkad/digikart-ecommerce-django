@@ -5,22 +5,7 @@
 <section class="section-conten padding-y bg">
     <div class="container">
       <div class="row">
-        <aside class="col-md-3">
-          <!--   SIDEBAR   -->
-          <ul class="list-group">
-            <a class="list-group-item" href="{% url 'admin_home' %}"> Dashboard </a>
-            <a class="list-group-item " href="{% url 'admin_user' %}">User Management </a>
-            <a class="list-group-item active" href="{% url 'admin_category' %}">Category Management</a>
-            <a class="list-group-item" href="{% url 'admin_product' %}">Product Management</a>
-            <a class="list-group-item" href="{% url 'admin_variation' %}">Variation Management</a>
-            <a class="list-group-item" href="{% url 'admin_order' %}">Order Management </a>
-          </ul>
-          <br />
-          <a class="btn btn-light btn-block" href="{% url 'admin_signout' %}">
-            <i class="fa fa-power-off"></i> <span class="text">Log out</span>
-          </a>
-          <!--   SIDEBAR .//END   -->
-        </aside>
+        {% include 'admin/adminincludes/admindashboard.html' %}
   <main class="col-md-9">
     <header class="mb-4"><h4 class="card-title">Edit Category</h4></header>
     <form action="" method="POST">

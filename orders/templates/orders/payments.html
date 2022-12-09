@@ -102,11 +102,34 @@
             </dl>
             <hr />
             <p class="text-center mb-3">
-              <img src="./images/misc/payments.png" height="26" />
+              <img src="{% static './images/misc/payments.png' %}" height="26" />
             </p>
-            <a href="{% url 'checkout' %}" class="btn btn-primary btn-block">
-              Checkout
-            </a>
+             <a href="{% url 'cod' %}" class="btn btn-dark btn-block mb-3">
+              Cash On Delivery
+            </a> 
+            {% if payment  %} 
+            <form action="{% url 'payment_status' %}" method="POST">
+              
+                <script
+                src="https://checkout.razorpay.com/v1/checkout.js"
+                data-key="{{razorpay_merchant_key}}"
+                data-amount="{{ payment.amount }}"
+                data-currency="INR"
+                data-order_id="{{ payment.id }}"
+                data-buttontext="Pay with RazorPay"
+                data-name=""
+                data-description="product"
+                data-image=""
+                data-prefill.name="{{ order.full_name }}"
+                data-prefill.email="{{user.email}}"
+                data-theme.color="#3399cc"
+              ></script>
+              <input type="hidden" custom="Hidden Element" name="hidden"> 
+             
+            </form>
+            {% endif %}
+            
+            
           
           </div>
           <!-- card-body.// -->
@@ -121,4 +144,11 @@
   </div>
   <!-- container .//  -->
 </section>
+<!-- RAZOR PAY -->
+
+<script>
+  var element = document.querySelector('.razorpay-payment-button');
+  element.className += ' btn btn-primary btn-block';
+</script>
+
 {% endblock %}

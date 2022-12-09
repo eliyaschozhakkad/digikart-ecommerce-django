@@ -10,6 +10,7 @@ urlpatterns = [
     path("product/", views.admin_product, name='admin_product'),
     path("variation/", views.admin_variation, name='admin_variation'),
     path("order/", views.admin_order, name='admin_order'),
+
     path("user/unblock/<int:id>/", views.unblock, name='unblock'),
     path("user/block/<int:id>/", views.block, name='block'),
     path("category/edit/<int:id>/", views.cat_edit, name='cat_edit'),

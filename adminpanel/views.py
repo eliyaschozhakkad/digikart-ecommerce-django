@@ -11,6 +11,8 @@ from django.contrib import messages
 from .forms import CategoryForm, ProductForm
 from store.forms import VariationForm
 from django.utils.text import slugify
+from django.db.models import Q 
+from django.core.paginator import Paginator
 
 
 # Admin Signin
@@ -67,7 +69,22 @@ def admin_home(request):
 @login_required()
 @user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
 def admin_user(request):
-    return render(request, 'admin/admin_user.html')
+    if request.method=="POST":
+        keyword=request.POST['keyword']
+        users=Account.objects.filter(Q(first_name__icontains=keyword)|Q(last_name__icontains=keyword)|
+        Q(email__icontains=keyword)|Q(phone_number__icontains=keyword)).order_by('id')
+    else:
+        users=Account.objects.filter(is_admin=False)
+
+    paginator=Paginator(users,10)
+    page=request.GET.get('page')
+    paged_users=paginator.get_page(page)
+    context={
+        'users':paged_users,
+    }
+    return render(request, 'admin/admin_user.html',context)
+
+
 
 
 
@@ -100,9 +117,19 @@ def block(request, id):
 @login_required()
 @user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
 def admin_category(request):
-    category = Category.objects.all()
-    context = {
-        'categories': category
+    if request.method=="POST":
+        keyword=request.POST['keyword']
+        category=Category.objects.filter(Q(category_name__icontains=keyword)|
+        Q(description__icontains=keyword)
+        ).order_by('id')
+    else:
+        category=Category.objects.filter()
+
+    paginator=Paginator(category,10)
+    page=request.GET.get('page')
+    paged_category=paginator.get_page(page)
+    context={
+        'category':paged_category,
     }
     return render(request, 'admin/admin_category.html', context)
 
@@ -161,7 +188,23 @@ def cat_edit(request, id):
 @login_required()
 @user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
 def admin_product(request):
-    return render(request, 'admin/admin_product.html')
+    if request.method=="POST":
+        keyword=request.POST['keyword']
+        product=Product.objects.filter(Q(product_name__icontains=keyword)|
+        Q(description__icontains=keyword)|Q(price__icontains=keyword)|Q(stock__icontains=keyword)|
+        Q(stock__icontains=keyword)
+        ).order_by('id')
+    else:
+        product=Product.objects.filter()
+
+    paginator=Paginator(product,4)
+    page=request.GET.get('page')
+    paged_product=paginator.get_page(page)
+    context={
+        'products':paged_product,
+    }
+ 
+    return render(request, 'admin/admin_product.html',context)
 
 
 

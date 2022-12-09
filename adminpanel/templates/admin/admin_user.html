@@ -5,63 +5,92 @@
 <section class="section-conten padding-y bg">
   <div class="container">
     <div class="row">
-      <aside class="col-md-3">
-        <!--   SIDEBAR   -->
-        <ul class="list-group">
-          <a class="list-group-item" href="{% url 'admin_home' %}"> Dashboard </a>
-          <a class="list-group-item active" href="{% url 'admin_user' %}">User Management </a>
-          <a class="list-group-item" href="{% url 'admin_category' %}">Category Management</a>
-          <a class="list-group-item" href="{% url 'admin_product' %}">Product Management</a>
-          <a class="list-group-item" href="{% url 'admin_variation' %}">Variation Management</a>
-          <a class="list-group-item" href="{% url 'admin_order' %}">Order Management </a>
-        </ul>
-        <br />
-        <a class="btn btn-light btn-block" href="{% url 'admin_signout' %}">
-          <i class="fa fa-power-off"></i> <span class="text">Log out</span>
-        </a>
-        <!--   SIDEBAR .//END   -->
-      </aside>
-        <main class="col-md-9">
+      {% include 'admin/adminincludes/admindashboard.html' %}
+      
+        <main class="col-md-4 mt-2">
+          <form action="" class="search" method="POST">
+            {% csrf_token %}
+            <div class="input-group w-100">
+                <input type="text" class="form-control" style="width:60%;" placeholder="Search" name="keyword">
+                
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </div>
+            </div>
+        </form> <!-- search-wrap .end// -->
+         
           {% for m in messages %}
           <div class="alert alert-danger" role="alert">{{m}}</div>
           {% endfor %}
-            <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone number</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                  {% for x in  account %}
-                  <tr>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone number</th>
+              </tr>
+            </thead>
+            <tbody>
+         
+          {% for user in users %}
+          <tr>
                     
-                    <th scope="row">{{forloop.counter}}</th>
-                    <td>{{x.first_name}}</td>
-                    <td>{{x.last_name}}</td>
-                    <td>{{x.email}}</td>
-                    <td>{{x.phone_number}}</td>
-                    {% if x.is_active  %}
-                    <td><a href="{% url 'block' x.id %}"><button type="button" class="btn btn-danger">Block</button></a></td>
-                   
-                    {% else %}
-                    <td><a href="{% url 'unblock' x.id %}"><button type="button" class="btn btn-success"> Unblock </button></a></td>
-                    {% endif %}
-                  </tr>
-
-                  {% endfor %}
-                 
+            <th scope="row">{{forloop.counter}}</th>
+            <td>{{user.first_name}}</td>
+            <td>{{user.last_name}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.phone_number}}</td>
+            {% if user.is_active  %}
+            
+            <td><a href="{% url 'block' user.id %}"><button type="button" class="btn btn-danger btn-sm" style="width:80px;"></i>Block<i class="fa-solid fa-ban"></button></a></td>
+           
+            {% else %}
+            <td><a href="{% url 'unblock' user.id %}"><button type="button" class="btn btn-success btn-sm d-flex" style="width:80px;">Unblock<i class="fa fa-unlock" aria-hidden="true"></i></button></a></td>
+             
+          </tr>
+            {% endif %}
+          
+          {% endfor %}
+          
+          
                 </tbody>
               </table>
+              <nav class="mt-4" aria-label="Page navigation sample">
+                {% if users.has_other_pages %}
+              <ul class="pagination">
+                {% if users.has_previous %}
+                <li class="page-item "><a class="page-link" href="?page={{users.previous_page_number}}">Previous</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                {% endif %}
+        
+                {% for i in users.paginator.page_range %}
+                {% if user.number == i  %}
+                <li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+                {% endif %}
+                {% endfor %}
+        
+                {% if users.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{users.next_page_number}}">Next</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                {% endif %}
+              </ul>
+                {% endif %}
+            </nav>
+            
         </main>
     </div> <!-- row.// -->
+   
     </div>
     
-    
+   
     </section>
     <!-- ========================= SECTION CONTENT END// ========================= -->
 
