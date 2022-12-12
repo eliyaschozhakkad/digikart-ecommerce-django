@@ -7,6 +7,7 @@
 
 <title>DigiKart</title>
 
+
 <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon">
 
 <!-- jQuery -->
@@ -37,7 +38,9 @@ $(document).ready(function() {
 }); 
 // jquery end
 </script>
-
+<style>ul{color:red;list-style-type:none;} </style>
+{% comment %} Sweet Alert CDN {% endcomment %}
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     {% include 'admin/adminincludes/adminnavbar.html' %}

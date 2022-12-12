@@ -1,11 +1,62 @@
 {% extends 'admin/adminbase.html' %}
+
+
 {% block content %}
 
+<script>
+  function block(id){
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, block the user'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href="block/"+id+"/"
+      }
+    })
+  }
+  function unblock(id){
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, unblock the user'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href="unblock/"+id+"/"
+      }
+    })
+  }
+</script>
 <!-- ========================= SECTION CONTENT ========================= -->
+
 <section class="section-conten padding-y bg">
   <div class="container">
     <div class="row">
       {% include 'admin/adminincludes/admindashboard.html' %}
+     
+    {% for m in messages %}
+    
+      
+    <script>
+    
+      Swal.fire(
+        'Done!',
+        '{{m}}',
+        'success'
+      )
+      
+    </script>
+   
+    {% endfor %}
+
       
         <main class="col-md-4 mt-2">
           <form action="" class="search" method="POST">
@@ -14,16 +65,13 @@
                 <input type="text" class="form-control" style="width:60%;" placeholder="Search" name="keyword">
                 
                 <div class="input-group-append">
-                  <button class="btn btn-primary" type="submit">
+                  <button class="btn btn-primary btn-sm" type="submit">
                     <i class="fa fa-search"></i>
                   </button>
                 </div>
             </div>
         </form> <!-- search-wrap .end// -->
-         
-          {% for m in messages %}
-          <div class="alert alert-danger" role="alert">{{m}}</div>
-          {% endfor %}
+        
           <table class="table">
             <thead>
               <tr>
@@ -46,10 +94,10 @@
             <td>{{user.phone_number}}</td>
             {% if user.is_active  %}
             
-            <td><a href="{% url 'block' user.id %}"><button type="button" class="btn btn-danger btn-sm" style="width:80px;"></i>Block<i class="fa-solid fa-ban"></button></a></td>
+            <td><a href="#" onclick="block({{user.id}})" ><button  type="button" class="btn btn-danger btn-sm" style="width:80px;"></i>Block<i class="fa-solid fa-ban"></button></a></td>
            
             {% else %}
-            <td><a href="{% url 'unblock' user.id %}"><button type="button" class="btn btn-success btn-sm d-flex" style="width:80px;">Unblock<i class="fa fa-unlock" aria-hidden="true"></i></button></a></td>
+            <td><a href="#" onclick="unblock({{user.id}})"><button type="button" class="btn btn-success btn-sm d-flex" style="width:80px;">Unblock<i class="fa fa-unlock" aria-hidden="true"></i></button></a></td>
              
           </tr>
             {% endif %}
@@ -61,7 +109,7 @@
               </table>
               <nav class="mt-4" aria-label="Page navigation sample">
                 {% if users.has_other_pages %}
-              <ul class="pagination">
+              <ul class="pagination pagination-sm">
                 {% if users.has_previous %}
                 <li class="page-item "><a class="page-link" href="?page={{users.previous_page_number}}">Previous</a></li>
                 {% else %}
@@ -93,6 +141,7 @@
    
     </section>
     <!-- ========================= SECTION CONTENT END// ========================= -->
-
-
+    
+    
+ 
 {% endblock %}

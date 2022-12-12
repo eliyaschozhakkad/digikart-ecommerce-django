@@ -10,7 +10,16 @@ from django.db.models import Q
 
 
 
+
 # Create your views here.
+
+def alert(request):
+    
+    return render(request,'alert.html')
+
+
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home(request):
 

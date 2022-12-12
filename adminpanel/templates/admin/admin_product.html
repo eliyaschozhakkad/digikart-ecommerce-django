@@ -1,4 +1,23 @@
 {% extends 'admin/adminbase.html' %} {% block content %}
+<script>
+  function deleteproduct(id){
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete the product'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href="delete/"+id+"/"
+      }
+    })
+  }
+
+
+</script>
 
 <!-- ========================= SECTION CONTENT ========================= -->
 <!-- ========================= SECTION CONTENT ========================= -->
@@ -8,14 +27,14 @@
       {% include 'admin/adminincludes/admindashboard.html' %}
       <main class="col-md-9">
         <div class="d-flex justify-content-between">
-          <a href="{% url 'add_product' %}"><button type="button" class="btn btn-success">Add Product</button></a>
+          <a href="{% url 'add_product' %}"><button type="button" class="btn btn-success btn-sm">Add Product</button></a>
           <form action="" class="search" method="POST">
             {% csrf_token %}
             <div class="input-group w-100">
                 <input type="text" class="form-control" style="width:60%;" placeholder="Search" name="keyword">
                 
                 <div class="input-group-append">
-                  <button class="btn btn-primary" type="submit">
+                  <button class="btn btn-primary btn-sm" type="submit">
                     <i class="fa fa-search"></i>
                   </button>
                 </div>
@@ -25,8 +44,14 @@
         
           
     
-            {% for m in messages %}
-            <div class="alert alert-danger" role="alert">{{m}}</div>
+            {% for m in messages %}     
+    <script>    
+      Swal.fire(
+        'Done!',
+        '{{m}}',
+        'success'
+      )    
+    </script>
             {% endfor %}
 
         <table class="table">
@@ -50,8 +75,8 @@
               <td>{{product.stock}}</td>
               <td>{{product.category}}</td>
              
-              <td><a href="{% url 'product_edit' product.id %}"><button type="button" class="btn btn-secondary"> Edit </button></a></td>
-              <td><a href="{% url 'product_delete' product.id %}" onclick="return confirm('Are you sure you want to delete this product?')"><button type="button" class="btn btn-danger">Delete</button></a></td>
+              <td><a href="{% url 'product_edit' product.id %}"><button type="button" class="btn btn-secondary btn-sm"> Edit </button></a></td>
+              <td><a href="#" onclick="deleteproduct({{product.id}})" ><button type="button" class="btn btn-danger btn-sm">Delete</button></a></td>
               
             </tr>
             {% endfor %}
@@ -60,7 +85,7 @@
         </table>
         <nav class="mt-4" aria-label="Page navigation sample">
           {% if products.has_other_pages %}
-        <ul class="pagination">
+        <ul class="pagination pagination-sm">
           {% if products.has_previous %}
           <li class="page-item "><a class="page-link" href="?page={{products.previous_page_number}}">Previous</a></li>
           {% else %}

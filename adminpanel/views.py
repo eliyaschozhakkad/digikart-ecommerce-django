@@ -141,7 +141,7 @@ def admin_category(request):
 def cat_delete(request, id):
     deletecategory = Category.objects.get(pk=id)
     deletecategory.delete()
-    messages.info(request, "The category item is deleted")
+    messages.info(request, "The category is deleted")
     return redirect("admin_category")
 
 
@@ -153,9 +153,14 @@ def add_category(request):
 
     if request.method == 'POST':
         form = CategoryForm(request.POST)
+        
         if form.is_valid():
             form.save()
+            messages.info(request, "The category is added")
             return redirect("admin_category")
+        else:
+            return render(request, "admin/addcategory.html",{'categoryform':form})
+            
 
     else:
         categoryform = CategoryForm()
@@ -245,7 +250,11 @@ def add_product(request):
         form = ProductForm(request.POST,request.FILES)
         if form.is_valid():
             form.save()
+            messages.info(request, "The product item is added")
             return redirect("admin_product")
+        else:
+            
+            return render(request, "admin/addproduct.html",{'productform':form})
 
     return render(request,"admin/addproduct.html",context)
 
@@ -253,7 +262,21 @@ def add_product(request):
 @login_required()
 @user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
 def admin_variation(request):
-    return render(request, 'admin/admin_variation.html')
+    if request.method=="POST":
+        keyword=request.POST['keyword']
+        variation=Variation.objects.filter(Q(product__product_name__icontains=keyword)|
+        Q(variation_category__icontains=keyword)|Q(variation_value__icontains=keyword)).order_by('id')
+    else:
+        variation=Variation.objects.filter()
+
+    paginator=Paginator(variation,10)
+    page=request.GET.get('page')
+    paged_variation=paginator.get_page(page)
+    context={
+        'variations':paged_variation,
+    }
+    
+    return render(request, 'admin/admin_variation.html',context)
 
 # Admin Edit Variation Page
 @login_required()
@@ -278,7 +301,7 @@ def variation_edit(request, id):
 def variation_delete(request,id):
     deletevariation=Variation.objects.get(pk=id)
     deletevariation.delete()
-    messages.info(request, "The variation item is deleted")
+    messages.info(request, "The variation  is deleted")
     return redirect("admin_variation")
 
 
@@ -292,6 +315,7 @@ def add_variation(request):
         form = VariationForm(request.POST,request.FILES)
         if form.is_valid():
             form.save()
+            messages.info(request, "The variation is added")
             return redirect("admin_variation")
 
     return render(request,"admin/addvariation.html",context)
