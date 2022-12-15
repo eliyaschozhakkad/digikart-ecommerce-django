@@ -22,6 +22,8 @@ urlpatterns = [
     path("category/addcategory/", views.add_category, name='add_category'),
     path("product/addproduct/", views.add_product, name='add_product'),
     path("product/addvariation/", views.add_variation, name='add_variation'),
+    path("orderstatus/<int:order_number>/", views.orderstatus, name='orderstatus'),
+    
 
    
 

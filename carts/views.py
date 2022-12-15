@@ -23,8 +23,10 @@ def add_cart(request,product_id):
         product_variation=[]
         if request.method=="POST":
             for item in request.POST:
+                #print(item)
                 key=item
                 value=request.POST[key]
+                #print(value)
             
 
                 try:
@@ -50,13 +52,18 @@ def add_cart(request,product_id):
             id=[]
 
             for item in cart_item:
+                #print(item)
                 existing_varaition=item.variations.all()
+                #print(existing_varaition)
                 ex_var_list.append(list(existing_varaition))
+                #print(ex_var_list)
                 id.append(item.id)
+                #print(item.id)
 
          
         
-
+            #print(product_variation)
+            #print(ex_var_list)
             if product_variation in ex_var_list:
                 #increase the cart item quantity
                 index=ex_var_list.index(product_variation)
@@ -155,6 +162,7 @@ def add_cart(request,product_id):
                 cart=cart
             )
             if len(product_variation)>0:
+                print(cart_item.variations)
                 cart_item.variations.clear()
                 cart_item.variations.add(*product_variation)
             cart_item.save()

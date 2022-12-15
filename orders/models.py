@@ -14,8 +14,8 @@ class Payment(models.Model):
     status=models.CharField(max_length=100)
     created_at=models.DateTimeField(auto_now_add=True)
 
-    def __str(self):
-        return self.payment_id
+    def __str__(self):
+        return f'{self.payment_method} {self.payment_id}'
     
     def paymentmethod(self):
         return self.payment_method
@@ -26,8 +26,11 @@ class Order(models.Model):
     STATUS=(
     ('New','New'),
     ('Accepted','Accepted'),
-    ('Completed','Completed'),
-    ('Cancelled','Cancelled'),
+    ('Ready for Shipping' , 'Ready for shipping'),
+    ('Shipped' , 'Shipped'),
+    ('Out for Delivery' , 'Out for Delivery'),
+    ('Delivered', 'Delivered'),
+    ('Cancelled' , 'Cancelled'),
     )
 
     user=models.ForeignKey(Account,on_delete=models.SET_NULL,null=True)
@@ -44,7 +47,7 @@ class Order(models.Model):
     city=models.CharField(max_length=50)
     order_total=models.FloatField()
     tax=models.FloatField()
-    status=models.CharField(max_length=50,choices=STATUS,default='New')
+    status=models.CharField(max_length=50,choices=STATUS,default='Cancelled')
     ip=models.CharField(max_length=20,blank=True)
     is_ordered=models.BooleanField(default=False)
     created_at=models.DateTimeField(auto_now_add=True)

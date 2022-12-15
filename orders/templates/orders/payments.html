@@ -107,17 +107,17 @@
              <a href="{% url 'cod' %}" class="btn btn-dark btn-block mb-3">
               Cash On Delivery
             </a> 
-            {% if payment  %} 
-            <form action="{% url 'payment_status' %}" method="POST">
+            
+            <form action="{% url 'payments_razorpay' %}" method="POST">
               
                 <script
                 src="https://checkout.razorpay.com/v1/checkout.js"
                 data-key="{{razorpay_merchant_key}}"
-                data-amount="{{ payment.amount }}"
+                data-amount="{{ grand_total }}"
                 data-currency="INR"
-                data-order_id="{{ payment.id }}"
+                data-order_id="{{ razorpay_order_id }}"
                 data-buttontext="Pay with RazorPay"
-                data-name=""
+                data-name="Product"
                 data-description="product"
                 data-image=""
                 data-prefill.name="{{ order.full_name }}"
@@ -127,7 +127,11 @@
               <input type="hidden" custom="Hidden Element" name="hidden"> 
              
             </form>
-            {% endif %}
+          
+
+            <div id="paypal-button-container">
+
+            </div>
             
             
           
@@ -148,7 +152,83 @@
 
 <script>
   var element = document.querySelector('.razorpay-payment-button');
-  element.className += ' btn btn-primary btn-block';
+  element.className += ' btn btn-primary btn-block lg mb-3';
+</script>
+
+<script>
+  //Render teh Papypal button
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+
+
+  var amount="{{grand_total}}"
+  var usd=(amount/73.085).toFixed(2)
+  var url="{% url 'payments_paypal' %}"
+  var csrftoken = getCookie('csrftoken');
+  var orderID="{{order.order_number}}"
+  var payment_method="PayPal"
+  var redirect_url="{% url 'order_complete' %}"
+  
+  paypal.Buttons({
+    // Sets up the transaction when a payment button is clicked
+   createOrder:function(data,actions){
+    return actions.order.create({
+      purchase_units:[{
+        amount:{
+          value:usd,
+        }
+      }]
+    });
+   },
+
+   //Finalise the transaction
+   onApprove:function(data,actions){
+    return actions.order.capture().then(function(details){
+      //Show a success message to the buyer
+      console.log(details);
+      sendData();
+      console.log(body);
+      function sendData(){
+        fetch(url,{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'X-CSRFToken':csrftoken,
+          },
+          body:JSON.stringify({
+            orderID:orderID,
+            transID:details.id,
+            payment_method:payment_method,
+            status:details.status,
+
+          }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          window.location.href=redirect_url+"?order_number="+data.order_number+"&payment_id="+data.transID;
+        });
+
+      }
+    });
+   }
+        
+    
+  }).render('#paypal-button-container');
 </script>
 
 {% endblock %}

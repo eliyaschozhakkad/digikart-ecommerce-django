@@ -13,6 +13,8 @@ from store.forms import VariationForm
 from django.utils.text import slugify
 from django.db.models import Q 
 from django.core.paginator import Paginator
+from orders.models import Order
+from orders.forms import OrderFormAdmin
 
 
 # Admin Signin
@@ -61,7 +63,20 @@ def admin_signout(request):
 @login_required()
 @user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
 def admin_home(request):
-    return render(request, 'admin/adminhome.html')
+    user_count = Account.objects.filter(is_admin=False).count()
+    product_count = Product.objects.all().count()
+    order_count = Order.objects.filter(is_ordered=True).count()
+    category_count = Category.objects.all().count()
+
+
+    context = {
+            'user_count'    : user_count,
+            'product_count' : product_count,
+            'order_count'   : order_count,
+            'category_count' : category_count,
+
+        }
+    return render(request, 'admin/adminhome.html',context)
 
 
 
@@ -328,4 +343,34 @@ def add_variation(request):
 @login_required()
 @user_passes_test(lambda u:u.is_superadmin,login_url='admin_signin')
 def admin_order(request):
-    return render(request,'admin/admin_order.html')
+    if request.method == 'POST':
+      keyword = request.POST['keyword']
+      orders = Order.objects.filter(Q(order_number__icontains=keyword) | Q(email__icontains=keyword) | Q(phone__icontains=keyword)).order_by('-order_number')
+    
+    else:
+      orders = Order.objects.filter().order_by('-order_number')
+      
+    paginator = Paginator(orders, 4)
+    page = request.GET.get('page')
+    paged_orders = paginator.get_page(page)
+    context = {
+      'orders': paged_orders
+    }
+    return render(request,'admin/admin_order.html',context)
+
+# Admin Order Status PAge
+@login_required()
+@user_passes_test(lambda u:u.is_superadmin,login_url='admin_signin')
+def orderstatus(request,order_number):
+    order=Order.objects.get(order_number=order_number)
+    orderform=OrderFormAdmin(instance=order)
+    if request.method == 'POST':
+        form = OrderFormAdmin(request.POST,instance=order)
+        
+        if form.is_valid():
+            form.save()
+            messages.info(request, "The order status is updated")
+            return redirect("admin_order")
+        
+    context = {'orderform': orderform}
+    return render(request, "admin/orderstatus.html", context)
