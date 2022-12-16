@@ -1,12 +1,12 @@
 <aside class="col-md-3">
     <!--   SIDEBAR   -->
     <ul class="list-group">
-      <a class="list-group-item" href="{% url 'admin_home' %}"> Dashboard </a>
-      <a class="list-group-item " href="{% url 'admin_user' %}">User Management </a>
-      <a class="list-group-item " href="{% url 'admin_category' %}">Category Management</a>
-      <a class="list-group-item" href="{% url 'admin_product' %}">Product Management</a>
-      <a class="list-group-item" href="{% url 'admin_variation' %}">Variation Management</a>
-      <a class="list-group-item" href="{% url 'admin_order' %}">Order Management </a>
+      <a class="list-group-item {% if '/adminpanel/adminhome/' == request.path %}active{% endif %}" href="{% url 'admin_home' %}"> Dashboard </a>
+      <a class="list-group-item {% if '/adminpanel/user/' == request.path %}active{% endif %} " href="{% url 'admin_user' %}">User Management </a>
+      <a class="list-group-item {% if '/adminpanel/category/' == request.path %}active{% endif %} " href="{% url 'admin_category' %}">Category Management</a>
+      <a class="list-group-item {% if '/adminpanel/product/' == request.path %}active{% endif %}" href="{% url 'admin_product' %}">Product Management</a>
+      <a class="list-group-item {% if '/adminpanel/variation/' == request.path %}active{% endif %}" href="{% url 'admin_variation' %}">Variation Management</a>
+      <a class="list-group-item {% if '/adminpanel/order/' == request.path %}active{% endif %}" href="{% url 'admin_order' %}">Order Management </a>
     </ul>
     <br />
     <a class="btn btn-light btn-block" href="{% url 'admin_signout' %}">
