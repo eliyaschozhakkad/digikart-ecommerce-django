@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section-conten padding-y bg">
+
+    <div class="container">
+        <div class="row">
+      {% include 'includes/dashboard_sidebar.html' %}
+        <main class="col-md-9">
+          {% for m in messages %}
+            
+                <script>    
+                    Swal.fire(
+                      'Done!',
+                      '{{m}}',
+                      'success'
+                    )    
+                  </script>
+            
+            {% endfor %}
+            <article class="card">
+            <header class="card-header">
+                <strong class="d-inline-block mr-3">Your Order History</strong>
+               
+            </header>
+            <div class="card-body">
+                <div class="row"> 
+                 <div class="col-md-12">
+                    <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th scope="col">Order No#</th>
+                            <th scope="col">Billing Name</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Order Details</th>
+                            <th scope="col">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders  %}
+                          <tr>
+                            {% if order.status == "Cancelled" %}
+                            <th scope="row">
+                              <a href="#">{{order.order_number}}</a>
+                            </th>
+                              {% else %}
+                              <th scope="row">
+                              <a href="{% url 'order_detail' order.order_number %}">{{order.order_number}}</a>
+                            </th>
+                              {% endif %}
+                              
+                            </th>
+                            <td>{{order.full_name}}</td>
+                            <td>{{order.phone}}</td>
+                            <td>{{order.status}}</td>
+                            <td>{{order.created_at}}</td>
+
+
+                            {% if order.status == "Cancelled" %}
+                            {% comment %} <th scope="row">
+                              <a href="#" class="btn btn-danger btn-block btn-sm">Retry Payment</a>
+                            </th> {% endcomment %}
+                              {% else %}
+                             <th scope="row">
+                              
+
+                              <td>                            
+<button type="button" class="btn btn-primary btn-block btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal-{{order.id}}">
+  Track order
+</button>
+</td>
+<th scope="row">
+  <a href="{% url 'cancel_order' order.order_number %}" class="btn btn-danger btn-block btn-sm">Cancel Order</a>
+</th> 
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal-{{order.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Order Details</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <ul class="list-unstyled mb0">
+          <li><strong>Order</strong> #{{order.order_number}}</li>
+          <li><strong>Transaction ID</strong> {{order.payment.payment_id}}</li>
+          <li><strong>Order Date:</strong> {{order.created_at}}</li>
+          <li><strong>Status:</strong><span class="text-info font-weight-bold">{{ order.status }}</span></li>
+      </ul>
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+                            </th>
+                              {% endif %}
+
+                           
+                            
+                          </tr>
+                          {% endfor %}
+                          
+                        </tbody>
+                      </table>
+                  
+                 </div>
+                 
+
+                </div> <!-- row.// -->
+            </div> <!-- card-body .// -->
+          
+            </article> <!-- order-group.// --> 
+        </main>
+    </div> <!-- row.// -->
+    </div>
+    
+    
+    </section>
+
+
+
+
+{% endblock %}

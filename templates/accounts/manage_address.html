@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section-conten padding-y bg">
+    
+
+    <div class="container">
+        <div class="row">
+      {% include 'includes/dashboard_sidebar.html' %}
+        <main class="col-md-9">
+            <article class="card">
+            <header class="card-header">
+                <strong class="d-inline-block mr-3">Address Management</strong>
+                <a href="{% url 'add_address' %}" class="btn btn-success btn-sm">Add New Address</a>
+                
+                {% for m in messages %}
+            
+                <script>    
+                    Swal.fire(
+                      'Done!',
+                      '{{m}}',
+                      'success'
+                    )    
+                  </script>
+            
+            {% endfor %}
+               
+            </header>
+            
+            <div class="card-body d-flex">
+
+             
+                 {% for address in address %}
+
+                <div class="card mr-4" style="width: 18rem;">
+                  
+                    <div class="card-body">
+                        {% if address.default %}
+                        <strong class="d-inline-block mr-3">Default Address</strong>
+                        {% else %}
+                        <strong class="d-inline-block mr-3">Other Address</strong>
+                        {% endif %}
+                      <p class="card-tex mb-0">{{address}}</p>
+                      <p class="card-tex mb-0">{{address.address_line_1}}</p>
+                      <p class="card-text mb-0">{{address.address_line_2}}</p>
+                      <p class="card-text mb-0">{{address.city}}</p>
+                      <p class="card-text mb-0">{{address.state}}</p>
+                      <p class="card-text mb-0">{{address.pincode}}</p>
+                      <p class="card-text mb-0">{{address.email}}</p>
+                      <p class="card-text mb-0">{{address.phone_number}}</p>
+                     
+                      <br>
+                      <a href="{% url 'edit_address' address.id %}" class="btn btn-primary btn-sm">Edit</a>
+                      <a href="{% url 'remove_address' address.id %}" class="btn btn-danger btn-sm">Remove</a>
+                     
+                      
+                    </div>
+                    
+                  </div>
+                  {% endfor %}
+                 
+                 
+
+                </div> <!-- row.// -->
+            </div> <!-- card-body .// -->
+          
+            </article> <!-- order-group.// --> 
+        </main>
+    </div> <!-- row.// -->
+    </div>
+    
+    
+    </section>
+
+
+
+{% endblock %}

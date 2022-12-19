@@ -17,7 +17,7 @@
                         <!-- Start .row -->
                         <div class="col-lg-6">
                             <!-- col-lg-6 start here -->
-                            <img class="logo" src="{% static './images/logo_amado.png' %}">
+                            <h3 style="font-family: 'Permanent Marker', cursive; color: #000">DigiKart</span></h3>
                         </div>
                         <!-- col-lg-6 end here -->
                         <div class="col-lg-6">
@@ -28,7 +28,7 @@
                                     <li>{{order.full_name}}</li>
                                     <li>{{order.full_address}}</li>
                                     <li>{{order.city}}, {{order.state}}</li>
-                                    {% comment %} <li>{{order.pin}}</li> {% endcomment %}
+                                    <li>{{order.pincode}}</li>
                                 </ul> 
                             </div>
                         </div>
@@ -39,7 +39,7 @@
                                 <div class="well">
                                     <ul class="list-unstyled mb0">
                                         <li><strong>Order</strong> #{{order.order_number}}</li>
-                                        <li><strong>Transaction</strong> {{order.payment.payment_id}}</li>
+                                        <li><strong>Transaction ID</strong> {{order.payment.payment_id}}</li>
                                         <li><strong>Order Date:</strong> {{order.created_at}}</li>
                                         <li><strong>Status:</strong><span class="text-info font-weight-bold">{{ order.status }}</span></li>
                                     </ul>

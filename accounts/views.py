@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import cache_control
-from .models import Account,UserProfile
+from .models import Account,UserAddress
 from orders.models import OrderProduct,Order
-from .forms import RegistrationForm,UserForm,UserProfileForm
+from .forms import RegistrationForm,UserForm,UserAddressForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 import requests
@@ -151,7 +151,7 @@ def signout(request):
 
 @login_required(login_url='signin')
 def dashboard(request):
-    order=Order.objects.order_by('-created_at').filter(user_id=request.user,is_ordered=True)
+    order=Order.objects.order_by('-created_at').filter(user_id=request.user)
     orders_count=order.count()
     context={
         'orders_count':orders_count,
@@ -261,7 +261,7 @@ def order_detail(request, order_id):
 
 @login_required(login_url='signin')
 def my_orders(request):
-    order=Order.objects.filter(user_id=request.user,is_ordered=True).order_by('-created_at')
+    order=Order.objects.filter(user_id=request.user).order_by('-created_at')
     context={
         'orders':order,
     }
@@ -269,23 +269,23 @@ def my_orders(request):
 
 @login_required(login_url='signin')
 def edit_profile(request):
-    userprofile=get_object_or_404(UserProfile,user=request.user)
+    #userprofile=get_object_or_404(Account,user=request.user)
     if request.method=="POST":
         user_form=UserForm(request.POST,instance=request.user)
-        profile_form=UserProfileForm(request.POST,request.FILES,instance=userprofile)
-        if user_form.is_valid() and profile_form.is_valid():
+        #profile_form=UserAddressForm(request.POST,request.FILES,instance=userprofile)
+        if user_form.is_valid():   # and #profile_form.is_valid()
             user_form.save()
-            profile_form.save()
+            #profile_form.save()
             messages.success(request,'Your profile has been updated')
     
     else:
         user_form=UserForm(instance=request.user)
-        profile_form=UserProfileForm(instance=userprofile)
+        #profile_form=UserAddressForm(instance=userprofile)
     
     context={
         'user_form':user_form,
-        'profile_form':profile_form,
-        'userprofile':userprofile
+        #'profile_form':profile_form,
+        #'userprofile':userprofile
     }
 
     return render(request,"accounts/edit_profile.html",context)
@@ -321,8 +321,85 @@ def change_password(request):
 def order_detail(request,order_id):
     order_detail=OrderProduct.objects.filter(order__order_number=order_id)
     order=Order.objects.get(order_number=order_id)
+    subtotal=0
+    for i in order_detail:
+        subtotal+=i.product_price*i.quantity
     context={
         'order_detail':order_detail,
         'order':order,
+        'subtotal':subtotal,
     }
-    return render(request,"accounts/order_detail_new.html",context)
+    return render(request,"accounts/order_detail.html",context)
+
+@login_required(login_url='signin')
+def cancel_order(request,order_id):
+    order=Order.objects.get(order_number=order_id)
+    order.status="Cancelled"
+    order.save()
+    messages.success(request,"Order is successfully cancelled")
+    return redirect('my_orders')
+
+@login_required(login_url='signin')
+def manage_address(request):
+    address_user=UserAddress.objects.filter(user=request.user)     
+    
+    context={
+       
+        'address':address_user,
+    }
+
+    return render(request,"accounts/manage_address.html",context)
+
+@login_required(login_url='signin')
+def add_address(request):
+    useraddress=UserAddress(user=request.user)
+    address_form=UserAddressForm(instance=useraddress)
+    if request.method=="POST":
+        address_form=UserAddressForm(request.POST,instance=useraddress)
+        if address_form.is_valid():
+              
+            address_form.save()
+            
+            messages.success(request,'Your address has been updated')
+            return redirect('manage_address')          
+    context={
+        'address_form':address_form,
+        
+    }
+   
+    return render(request,"accounts/add_address.html",context)
+
+@login_required(login_url='signin')
+def edit_address(request,address_id):
+    useraddress=UserAddress.objects.get(id=address_id)
+    address_form=UserAddressForm(instance=useraddress)
+    if request.method=="POST":
+        address_form=UserAddressForm(request.POST,instance=useraddress)
+        
+        if address_form.is_valid():   
+            address_form.save()
+            
+            messages.success(request,'Your address has been updated')
+            return redirect('manage_address')
+    
+    
+    
+    context={
+        'address_form':address_form,
+        
+    }
+   
+    return render(request,"accounts/edit_address.html",context)
+    
+@login_required(login_url='signin')
+def remove_address(request,address_id):
+    address_user=UserAddress.objects.get(pk=address_id)
+    address_user.delete()
+    messages.success(request,'Your address has been successfully removed')     
+    
+
+    return redirect('manage_address')
+
+    
+
+

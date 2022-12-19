@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-
+from django.db.models import Q
 # Create your models here.
 
 
@@ -70,20 +70,47 @@ class Account(AbstractBaseUser):
     def has_module_perms(self, add_label):
         return True
 
-class UserProfile(models.Model):
-    user=models.OneToOneField(Account,on_delete=models.CASCADE)
+ADD_TYPE = (
+    ("Home", "Home"),
+    ("Word", "Work"),
+)
+
+
+class UserAddress(models.Model):
+    user=models.ForeignKey(Account,on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     address_line_1=models.CharField(blank=True,max_length=100)
     address_line_2=models.CharField(blank=True,max_length=100)
-    profile_picture=models.ImageField(blank=True,upload_to='userprofile')
+    profile_picture=models.ImageField(null=True,blank=True,upload_to='userprofile')
     city=models.CharField(blank=True,max_length=20)
     state=models.CharField(blank=True,max_length=20)
     pincode=models.IntegerField(blank=True)
+    email = models.EmailField(max_length=100,blank=True)
+    phone_number = models.CharField(max_length=50,blank=True)
+    add_type = models.CharField(max_length=50 , choices=ADD_TYPE)
+    default = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.first_name
+        return f'{self.first_name} {self.last_name}'
 
     def full_address(self):
         return f'{self.address_line_1} {self.address_line_2}'
+
+    def save(self, *args, **kwargs):
+        if self.default:
+            self.__class__._default_manager.filter(user=self.user, default=True).update(default=False)
+        super().save(*args, **kwargs)
+
+       
+    # class Meta:
+    #     constraints = [
+    #         models.UniqueConstraint(
+    #             fields=['user'],
+    #             condition=Q(default=True),
+    #             name='unique_primary_per_customer'
+    #         )
+    #     ]
 
 
 
