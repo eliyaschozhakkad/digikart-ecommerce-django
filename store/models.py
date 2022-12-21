@@ -3,16 +3,20 @@ from category.models import Category
 from django.urls import reverse
 from django.utils.text import slugify
 
+
 # Create your models here.
 class Product(models.Model):
     product_name=models.CharField(max_length=200,unique=True)
     slug        =models.SlugField(max_length=200,unique=True)
     description =models.TextField(max_length=500,blank=True)
     price       =models.IntegerField()
+    discount_price=models.IntegerField(null=True,blank=True)
+    offer_rate=models.IntegerField(null=True,blank=True)
     images      =models.ImageField(upload_to='photos/products')
     stock       =models.IntegerField()
     is_available=models.BooleanField(default=True)
     category    =models.ForeignKey(Category,on_delete=models.CASCADE)
+    
     created_date=models.DateTimeField(auto_now_add=True)
     modified_date=models.DateTimeField(auto_now=True)
 
@@ -21,6 +25,7 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
+   
 
     def save(self, *args, **kwargs):  # Stackoverflow
         if not self.slug:

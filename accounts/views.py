@@ -341,7 +341,7 @@ def cancel_order(request,order_id):
 
 @login_required(login_url='signin')
 def manage_address(request):
-    address_user=UserAddress.objects.filter(user=request.user)     
+    address_user=UserAddress.objects.filter(user=request.user).order_by('id')    
     
     context={
        
@@ -399,6 +399,25 @@ def remove_address(request,address_id):
     
 
     return redirect('manage_address')
+
+@login_required(login_url='signin')
+def default_address(request,address_id):
+    address_user=UserAddress.objects.all()
+    for item in address_user:
+        item.default=False
+    item.save()
+    address_user=UserAddress.objects.get(pk=address_id)
+    address_user.default=True
+    address_user.save()
+
+    return redirect('manage_address')
+
+
+
+
+
+
+    
 
     
 

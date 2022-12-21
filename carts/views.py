@@ -1,6 +1,8 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from store.models import Product,Variation
 from .models import Cart,CartItem  
+from accounts.models import UserAddress
+from accounts.forms import UserAddressForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -218,10 +220,21 @@ def cart(request,total=0,quantity=0,cart_items=None):
             cart_items=CartItem.objects.filter(cart=cart,is_active=True)
 
         for cart_item in cart_items:
-            total+= (cart_item.product.price*cart_item.quantity)
-            quantity += cart_item.quantity
-        tax=(18*total)/100
-        grand_total=total+tax
+
+            if not cart_item.product.discount_price:
+                if True:
+                    total+= (cart_item.product.price*cart_item.quantity)
+                    quantity += cart_item.quantity
+                tax=(18*total)/100
+                grand_total=total+tax
+            
+            else:
+                if True:
+                    total+= (cart_item.product.discount_price*cart_item.quantity)
+                    quantity += cart_item.quantity
+                tax=(18*total)/100
+                grand_total=total+tax
+
 
     except ObjectDoesNotExist:
         pass
@@ -239,6 +252,8 @@ def cart(request,total=0,quantity=0,cart_items=None):
 @login_required(login_url='signin')
 def checkout(request,total=0,quantity=0,cart_items=None):
     try:
+        
+        address_user=UserAddress.objects.filter(user=request.user)
         tax=0
         grand_total=0
         if request.user.is_authenticated:
@@ -248,10 +263,23 @@ def checkout(request,total=0,quantity=0,cart_items=None):
             cart_items=CartItem.objects.filter(cart=cart,is_active=True)
 
         for cart_item in cart_items:
-            total+= (cart_item.product.price*cart_item.quantity)
-            quantity += cart_item.quantity
-        tax=(18*total)/100
-        grand_total=total+tax
+            if not cart_item.product.discount_price:
+                if True:
+                    total+= (cart_item.product.price*cart_item.quantity)
+                    quantity += cart_item.quantity
+                tax=(18*total)/100
+                grand_total=total+tax
+            
+            else:
+                if True:
+                    total+= (cart_item.product.discount_price*cart_item.quantity)
+                    quantity += cart_item.quantity
+                tax=(18*total)/100
+                grand_total=total+tax
+
+
+
+            
 
     except ObjectDoesNotExist:
         pass
@@ -261,6 +289,25 @@ def checkout(request,total=0,quantity=0,cart_items=None):
         'quantity':quantity,
         'cart_items':cart_items,
         'tax':tax,
-        'grand_total':grand_total
+        'grand_total':grand_total,
+        'address_user':address_user,
     }
     return render(request,'carts/checkout.html',context)
+
+def adduser_address(request):
+    useraddress=UserAddress(user=request.user)
+    address_form=UserAddressForm(instance=useraddress)
+    if request.method=="POST":
+        address_form=UserAddressForm(request.POST,instance=useraddress)
+        if address_form.is_valid():
+              
+            address_form.save()
+            
+            #messages.success(request,'Your address has been updated')
+            return redirect('checkout')          
+    context={
+        'address_form':address_form,
+        
+    }
+   
+    return render(request,"carts/add_address.html",context)

@@ -37,7 +37,7 @@
                         {% if address.default %}
                         <strong class="d-inline-block mr-3">Default Address</strong>
                         {% else %}
-                        <strong class="d-inline-block mr-3">Other Address</strong>
+                        <strong class="d-inline-block mr-3"></strong>
                         {% endif %}
                       <p class="card-tex mb-0">{{address}}</p>
                       <p class="card-tex mb-0">{{address.address_line_1}}</p>
@@ -49,6 +49,9 @@
                       <p class="card-text mb-0">{{address.phone_number}}</p>
                      
                       <br>
+                      {% if not address.default %}
+                      <a href="{% url 'default_address' address.id %}" class="btn btn-success btn-sm">Make Default</a>
+                      {% endif %}
                       <a href="{% url 'edit_address' address.id %}" class="btn btn-primary btn-sm">Edit</a>
                       <a href="{% url 'remove_address' address.id %}" class="btn btn-danger btn-sm">Remove</a>
                      

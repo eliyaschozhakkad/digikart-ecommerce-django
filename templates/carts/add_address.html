@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %} {% block content %}
+<section class="section-content padding-y bg">
+  <div class="container">
+    <!-- ============================ COMPONENT 1 ================================= -->
+   
+    <div class="row">
+      <aside class="col-lg-6">
+        <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Billing address</h4>
+          <form action="" method="POST">
+            {% csrf_token %}
+            {{address_form.as_p}}
+            <button class="btn btn-primary btn-block" type="submit" name="submit">
+                Place Order
+              </button>
+          
+        </div>
+         
+        </div>
+        <!-- card.// -->
+      </aside>
+      <!-- col.// -->
+     
+            
+          </form>
+        
+      <!-- col.// -->
+    </div>
+    <!-- row.// -->
+    
+    <!-- ============================ COMPONENT 1 END .// ================================= -->
+  </div>
+  <!-- container .//  -->
+</section>
+{% endblock %}

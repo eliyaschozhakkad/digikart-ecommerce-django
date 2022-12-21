@@ -8,13 +8,15 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.cache import never_cache
 from accounts.models import Account
 from django.contrib import messages
-from .forms import CategoryForm, ProductForm
+from .forms import CategoryForm, ProductForm,OfferForm,EditOfferForm
 from store.forms import VariationForm
 from django.utils.text import slugify
 from django.db.models import Q 
 from django.core.paginator import Paginator
 from orders.models import Order
 from orders.forms import OrderFormAdmin
+from offers.models import Offer
+
 
 
 # Admin Signin
@@ -374,3 +376,81 @@ def orderstatus(request,order_number):
         
     context = {'orderform': orderform}
     return render(request, "admin/orderstatus.html", context)
+
+@login_required()
+@user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
+def admin_offer(request):
+    offers=Offer.objects.all()
+    context={
+        'offers':offers,
+    }
+    return render(request,"admin/offers.html",context)
+
+
+
+@login_required()
+@user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
+def offer_edit(request, id):
+    editoffer = Offer.objects.get(pk=id)
+    offerform = EditOfferForm(instance=editoffer)
+    if request.method == 'POST':
+        offerform = EditOfferForm(request.POST,instance=editoffer)
+        if offerform.is_valid():
+            obj=offerform.save(commit=False)
+            product=Product.objects.get(id=obj.product.id)
+            product.offer_rate=obj.offer_rate
+            discount=0
+            discount=product.price-(product.price*product.offer_rate)/100
+            product.discount_price=int(discount)
+            product.save()
+            obj.save()
+            messages.info(request, "The offer is edited")
+            return redirect('admin_offer')
+
+
+    context = {'offerform': offerform}
+    return render(request, "admin/editoffer.html", context)
+
+@login_required()
+@user_passes_test(lambda u:u.is_superadmin,login_url='admin_signin')
+def offer_delete(request,id):
+    deleteoffer=Offer.objects.get(pk=id)
+    product=Product.objects.get(id=deleteoffer.product.id)
+    product.offer_rate=0
+    product.discount_price=0
+    product.save()
+    deleteoffer.delete()
+    messages.info(request, "The offer is deleted")
+    return redirect("admin_offer")
+
+
+@login_required()
+@user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
+def add_offer(request):
+
+    if request.method == 'POST':
+        offerform = OfferForm(request.POST)
+        
+        if offerform.is_valid():
+            obj=offerform.save(commit=False)
+            product=Product.objects.get(id=obj.product.id)
+            product.offer_rate=obj.offer_rate
+            discount=0
+            discount=product.price-(product.price*product.offer_rate)/100
+            product.discount_price=int(discount)
+            
+            obj.save()
+            product.save()
+
+            
+            
+            messages.info(request, "The offer is added")
+            return redirect("admin_offer")
+        else:
+            return render(request, "admin/addoffer.html",{'offerform':offerform})
+            
+
+    else:
+        offerform = OfferForm()
+        context = {'offerform': offerform}
+        return render(request, "admin/addoffer.html", context)

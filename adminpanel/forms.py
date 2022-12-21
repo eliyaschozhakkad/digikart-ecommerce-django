@@ -2,6 +2,7 @@ from django import forms
 from category.models import Category
 from store.models import Product
 from django.core.exceptions import ValidationError
+from offers.models import Offer
 
 
 
@@ -72,5 +73,28 @@ class ProductForm(forms.ModelForm):
             raise forms.ValidationError("The price cannot be negative")
         if stock < 0:
             raise forms.ValidationError("The stock cannot be negative")
+
+class OfferForm(forms.ModelForm):
+
+    class Meta:
+        model=Offer
+        fields=['offer_name','offer_rate','product']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for myField in self.fields:
+            self.fields[myField].widget.attrs['class'] = 'form-control'
+
+class EditOfferForm(forms.ModelForm):
+
+    class Meta:
+        model=Offer
+        fields=['offer_name','offer_rate']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for myField in self.fields:
+            self.fields[myField].widget.attrs['class'] = 'form-control'
+
         
         

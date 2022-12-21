@@ -103,6 +103,7 @@
     <div class="row">
         {% if products %}
         {% for products in products %}
+       
         <div class="col-md-4">
             <figure class="card card-product-grid">
                 <div class="img-wrap"> 
@@ -113,7 +114,17 @@
                     <div class="fix-height">
                         <a href="{{products.get_url}}" class="title">{{products.product_name}}</a>
                         <div class="price-wrap mt-2">
+                            {% if products.discount_price  %}
+                            <div class="price text-success h6">{{products.offer_rate}}%</div>
+                            
+                                <span class="price"><del>Rs {{products.price}}</del></span>
+                                <span class="price text-primary">Rs {{products.discount_price}}</span>
+                            
+                            
+
+                            {% else %}
                             <span class="price">Rs {{products.price}}</span>
+                            {% endif %}
                         </div> <!-- price-wrap.// -->
                     </div>
                     <a href="{{products.get_url}}" class="btn btn-block btn-primary">View Details </a>	

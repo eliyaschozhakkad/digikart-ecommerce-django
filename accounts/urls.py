@@ -19,6 +19,7 @@ urlpatterns = [
     path("manage_address/", views.manage_address, name='manage_address'),
     path("add_address/", views.add_address, name='add_address'),
     path("edit_address/<int:address_id>", views.edit_address, name='edit_address'),
+    path("default_address/<int:address_id>", views.default_address, name='default_address'),
     path("remove_address/<int:address_id>", views.remove_address, name='remove_address'),
     
     

@@ -22,17 +22,41 @@
 <header class="section-heading">
 	<a href="{% url 'store' %}" class="btn btn-outline-primary float-right">See all</a>
 	<h3 class="section-title">Popular products</h3>
+	
 </header><!-- sect-heading -->
 
 	
 <div class="row">
 	{% for products in products %}
 	<div class="col-md-3">
+		
+		
 		<div class="card card-product-grid">
 			<a href="{{products.get_url}}" class="img-wrap"> <img src="{{products.images.url}}"> </a>
 			<figcaption class="info-wrap">
+				
 				<a href="{{products.get_url}}" class="title">{{products.product_name}}</a>
+				
+
+				{% if products.discount_price %}
+				
+				
+				<div class="price mt-1 h1 text-success">{{products.offer_rate}}%</div> <!-- price-wrap.// -->
+				<div class="price mt-1 d-flex">
+					<p><del>Rs {{products.price}}</del> </p>
+					<p class="mx-1 text-primary">Rs{{products.discount_price}}</p>
+				</div> <!-- price-wrap.// -->
+				
+
+				
+				{% else %}
 				<div class="price mt-1">Rs{{products.price}}</div> <!-- price-wrap.// -->
+				{% endif %}
+				
+				
+
+
+
 			</figcaption>
 		</div>
 	</div> <!-- col.// -->
@@ -40,6 +64,7 @@
 </div> <!-- row.// -->
 
 </div><!-- container // -->
+
 </section>
 <!-- ========================= SECTION  END// ========================= -->
 

@@ -7,6 +7,7 @@
       <a class="list-group-item {% if '/adminpanel/product/' == request.path %}active{% endif %}" href="{% url 'admin_product' %}">Product Management</a>
       <a class="list-group-item {% if '/adminpanel/variation/' == request.path %}active{% endif %}" href="{% url 'admin_variation' %}">Variation Management</a>
       <a class="list-group-item {% if '/adminpanel/order/' == request.path %}active{% endif %}" href="{% url 'admin_order' %}">Order Management </a>
+      <a class="list-group-item {% if '/adminpanel/offer/' == request.path %}active{% endif %}" href="{% url 'admin_offer' %}">Offer Management </a>
     </ul>
     <br />
     <a class="btn btn-light btn-block" href="{% url 'admin_signout' %}">
