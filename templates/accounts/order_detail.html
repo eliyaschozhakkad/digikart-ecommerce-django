@@ -103,11 +103,7 @@
             <!-- End .panel -->
         </div>
 
-        {% if order.status == 'Pending' or order.status == 'Order Accepted' %}
-        <a href="{% url 'user_cancel_order' order.order_number %}" onclick="return confirm('Are you sure want to cancel this order?')" class="btn btn-block btn-danger">Cancel Order</a>
         
-        {% endif %}
-        <!-- col-lg-12 end here -->
     </div>
     </div>
 

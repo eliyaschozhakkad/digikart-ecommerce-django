@@ -1,6 +1,7 @@
 from django.db import models
 from store.models import Product,Variation
 from accounts.models import Account
+from offers.models import Coupon
 
 
 # Create your models here.
@@ -8,6 +9,7 @@ from accounts.models import Account
 class Cart(models.Model):
     cart_id = models.CharField(max_length=250, blank=True)
     date_added = models.DateField(auto_now_add=True)
+    
 
     def __str__(self):
         return self.cart_id
@@ -30,3 +32,6 @@ class CartItem(models.Model):
 
     def __unicode__(self):
         return self.product
+
+    
+            

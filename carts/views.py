@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
+from django.contrib import messages
 from store.models import Product,Variation
 from .models import Cart,CartItem  
 from accounts.models import UserAddress
@@ -6,7 +7,7 @@ from accounts.forms import UserAddressForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-
+from offers.models import Coupon
 # Create your views here.
 
 def _cart_id(request):
@@ -218,7 +219,7 @@ def cart(request,total=0,quantity=0,cart_items=None):
         else:
             cart=Cart.objects.get(cart_id=_cart_id(request))
             cart_items=CartItem.objects.filter(cart=cart,is_active=True)
-
+            
         for cart_item in cart_items:
 
             if not cart_item.product.discount_price:
@@ -253,7 +254,7 @@ def cart(request,total=0,quantity=0,cart_items=None):
 def checkout(request,total=0,quantity=0,cart_items=None):
     try:
         
-        address_user=UserAddress.objects.filter(user=request.user)
+        address_user=UserAddress.objects.filter(user=request.user).order_by('-default')
         tax=0
         grand_total=0
         if request.user.is_authenticated:
@@ -311,3 +312,87 @@ def adduser_address(request):
     }
    
     return render(request,"carts/add_address.html",context)
+
+def apply_coupon(request,total=0,quantity=0,cart_items=None):
+    
+
+    if request.method=="POST":
+        
+        couponcode=request.POST['coupon']
+        #request.session['couponcode']=couponcode
+        hello=Coupon.objects.all()
+        H=Coupon.objects.filter(coupon_code=couponcode)
+        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_expired=False).exists()
+        if couponexists:
+            coupon=Coupon.objects.get(coupon_code__iexact=couponcode)
+            coupon.user=request.user
+            coupon.save()
+            messages.success(request," Coupon is applied")
+            request.session['appliedcode'] = coupon.coupon_code
+        
+        else:
+            print('coupon dont exist')
+            messages.success(request,"Not Valid Coupon")
+    
+    try:
+        tax=0
+        grand_total=0
+        if request.user.is_authenticated:
+            cart_items=CartItem.objects.filter(user=request.user,is_active=True)
+        else:
+            cart=Cart.objects.get(cart_id=_cart_id(request))
+            cart_items=CartItem.objects.filter(cart=cart,is_active=True)
+            
+        for cart_item in cart_items:
+
+            if not cart_item.product.discount_price:
+                if True:
+                    total+= (cart_item.product.price*cart_item.quantity)
+                    quantity += cart_item.quantity
+
+
+                if couponexists:
+                    total=total-coupon.coupon_discount
+                    
+
+
+                tax=(18*total)/100
+                grand_total=total+tax
+            
+            else:
+                if True:
+                    total+= (cart_item.product.discount_price*cart_item.quantity)
+                    quantity += cart_item.quantity
+
+                if couponexists:
+                    total=total-coupon.coupon_discount
+
+
+                tax=(18*total)/100
+                grand_total=total+tax
+
+                
+
+
+    except ObjectDoesNotExist:
+        pass
+    
+    context={
+        'total':total,
+        'quantity':quantity,
+        'cart_items':cart_items,
+        'tax':tax,
+        'grand_total':grand_total,
+        'coupon':coupon
+        
+        
+    }
+
+    return render(request,"carts/cart.html",context)
+
+def remove_coupon(request,id):
+    
+    return redirect('cart')
+    
+
+    

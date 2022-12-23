@@ -61,15 +61,16 @@
                     <td>{{order.order_number}}</td>
                     <td>{{order.phone}}</td>
                     <td>{{order.email}}</td>
-                    
                     <td>{{order.order_total}}</td>
-                    
-                    <td>{{order.status}}</td>
+                    <td><strong>{{order.status}}</strong></td>
                     <td>{{order.payment}}</td>
                     <td>{{order.created_at}}</td>
-                    
-                   
+                    {% if order.status == 'Cancelled'  %}
+                    <td></td>
+                    {% else %}
                     <td><a href="{% url 'orderstatus' order.order_number %}"><button type="button" class="btn btn-secondary btn-sm">Change Order Status </button></a></td>
+                    {% endif %}
+                    <td></td>
 
                     
                   </tr>

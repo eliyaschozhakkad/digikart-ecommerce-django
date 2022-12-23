@@ -50,7 +50,7 @@ class UserForm(forms.ModelForm):
 
 class UserAddressForm(forms.ModelForm):
 
-    profile_picture=forms.ImageField(required=False,error_messages={'invalid':("Image Files Only")},widget=forms.FileInput)
+    #profile_picture=forms.ImageField(required=False,error_messages={'invalid':("Image Files Only")},widget=forms.FileInput)
 
     class Meta:
         model=UserAddress

@@ -352,7 +352,7 @@ def admin_order(request):
     else:
       orders = Order.objects.filter().order_by('-order_number')
       
-    paginator = Paginator(orders, 4)
+    paginator = Paginator(orders, 10)
     page = request.GET.get('page')
     paged_orders = paginator.get_page(page)
     context = {
@@ -394,7 +394,7 @@ def offer_edit(request, id):
     editoffer = Offer.objects.get(pk=id)
     offerform = EditOfferForm(instance=editoffer)
     if request.method == 'POST':
-        offerform = EditOfferForm(request.POST,instance=editoffer)
+        offerform = EditOfferForm(request.POST,request.FILES,instance=editoffer)
         if offerform.is_valid():
             obj=offerform.save(commit=False)
             product=Product.objects.get(id=obj.product.id)
@@ -429,7 +429,7 @@ def offer_delete(request,id):
 def add_offer(request):
 
     if request.method == 'POST':
-        offerform = OfferForm(request.POST)
+        offerform = OfferForm(request.POST,request.FILES)
         
         if offerform.is_valid():
             obj=offerform.save(commit=False)

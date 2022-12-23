@@ -25,31 +25,11 @@ def alert(request):
 def home(request):
     
     products = Product.objects.all().filter(is_available=True).order_by('id')
-    #product_offer=Offer.objects.filter(is_valid=True)
+    offers=Offer.objects.all().order_by('id')
     
-    
-    
-    # if product_offer:
-    #     for product in products:
-            
-    #         offerexists=Offer.objects.filter(product=product).exists()
-    #         if offerexists:
-    #             offer=Offer.objects.get(product=product)
-                
-    #             print(product.price)
-    #             product.discount_price=int(product.price-(product.price*offer.offer_rate)/100)
-    #             product.offer_rate=offer.offer_rate
-    #             print(product.discount_price)
-    #             product.save()
-    
-    
-
-    # print(product_offer)
-            
-     
-
     context = {
-        'products': products,             
+        'products': products,
+        'offers':offers             
     }
     return render(request, "index.html", context)
 

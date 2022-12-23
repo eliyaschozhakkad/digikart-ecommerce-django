@@ -6,6 +6,22 @@
         <div class="row">
       {% include 'includes/dashboard_sidebar.html' %}
         <main class="col-md-9">
+          <div class="d-flex justify-content-between">
+               
+            <form action="" class="search" method="POST">
+              {% csrf_token %}
+              <div class="input-group w-100">
+                  <input type="text" class="form-control" style="width:60%;" placeholder="Search" name="keyword">
+                  
+                  <div class="input-group-append">
+                    <button class="btn btn-primary btn-sm" type="submit">
+                      <i class="fa fa-search"></i>
+                    </button>
+                  </div>
+              </div>
+          </form> <!-- search-wrap .end// -->
+        </div>
+          
           {% for m in messages %}
             
                 <script>    
@@ -18,6 +34,7 @@
             
             {% endfor %}
             <article class="card">
+              
             <header class="card-header">
                 <strong class="d-inline-block mr-3">Your Order History</strong>
                
@@ -62,15 +79,17 @@
                               {% else %}
                              <th scope="row">
                               
-
-                              <td>                            
+                              <td><a href="{% url 'getpdf' order.order_number %}"><i class="fa fa-download fa-lg" aria-hidden="true"></i></a></td>
+                              <td>                          
 <button type="button" class="btn btn-primary btn-block btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal-{{order.id}}">
   Track order
 </button>
 </td>
 <th scope="row">
   <a href="{% url 'cancel_order' order.order_number %}" class="btn btn-danger btn-block btn-sm">Cancel Order</a>
+  
 </th> 
+ 
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal-{{order.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -110,6 +129,32 @@
                           
                         </tbody>
                       </table>
+                      <nav class="mt-4" aria-label="Page navigation sample">
+                        {% if orders.has_other_pages %}
+                      <ul class="pagination pagination-sm">
+                        {% if orders.has_previous %}
+                        <li class="page-item "><a class="page-link" href="?page={{orders.previous_page_number}}">Previous</a></li>
+                        {% else %}
+                        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                        {% endif %}
+                      
+                        {% for i in orders.paginator.page_range %}
+                        {% if orders.number == i  %}
+                        <li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                      
+                        {% if orders.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{orders.next_page_number}}">Next</a></li>
+                        {% else %}
+                        <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                        {% endif %}
+                      </ul>
+                        {% endif %}
+                      </nav>
+
                   
                  </div>
                  

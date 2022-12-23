@@ -45,6 +45,7 @@ class Account(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     phone_number = models.CharField(max_length=50)
+    profile_picture=models.ImageField(null=True,blank=True,upload_to='userprofile')
 
     # required
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -82,7 +83,7 @@ class UserAddress(models.Model):
     last_name = models.CharField(max_length=100)
     address_line_1=models.CharField(blank=True,max_length=100)
     address_line_2=models.CharField(blank=True,max_length=100)
-    profile_picture=models.ImageField(null=True,blank=True,upload_to='userprofile')
+    
     city=models.CharField(blank=True,max_length=20)
     state=models.CharField(blank=True,max_length=20)
     pincode=models.IntegerField(blank=True)

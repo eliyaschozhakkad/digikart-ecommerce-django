@@ -48,10 +48,14 @@
           </div>  
           
         </div>
-        <div class="w-75"> 
-          <canvas id="myChart" width="300" height="300"></canvas>
+        <div class="d-flex">
+        <div class="w-50"> 
+          <canvas id="myChart" width="150" height="150"></canvas>
         </div>
-  
+        <div class="w-50"> 
+          <canvas id="myChart2" width="150" height="150"></canvas>
+        </div>
+      </div>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
         <script>
@@ -64,6 +68,29 @@
               datasets: [{
                 label: '',
                 data: ['{{order_count}}', '{{product_count}}', '{{user_count}}', '{{category_count}}'],
+                borderWidth: 1
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+
+          const ctxy = document.getElementById('myChart2');
+          var barColors = ["#42bff5", "#ab0e7c","#db732e","orange","brown"];
+  
+          new Chart(ctxy, {
+            type: 'bar',
+            data: {
+              labels: ['Order', 'Product', 'User', 'Category'],
+              datasets: [{
+                label: '',
+                data: ['{{order_count}}', '{{product_count}}', '{{user_count}}', '{{category_count}}'],
+                backgroundColor: barColors,
                 borderWidth: 1
               }]
             },

@@ -21,6 +21,7 @@ urlpatterns = [
     path("edit_address/<int:address_id>", views.edit_address, name='edit_address'),
     path("default_address/<int:address_id>", views.default_address, name='default_address'),
     path("remove_address/<int:address_id>", views.remove_address, name='remove_address'),
+    path("getpdf/<int:order_id>/", views.getpdf, name='getpdf'),
     
     
 

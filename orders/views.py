@@ -17,6 +17,7 @@ from django.core.mail import EmailMessage
 from django.contrib import messages
 import json
 from django.http import HttpResponseBadRequest
+from offers.models import Coupon
 
 
 # Create your views here.
@@ -194,6 +195,16 @@ def place_order(request,total=0,quantity=0):
     if cart_count<=0:
         return redirect('store')
 
+    couponexists=Coupon.objects.filter(user=request.user,is_expired=False).exists()
+
+    if couponexists:
+        if couponexists:
+            coupon=Coupon.objects.get(user=request.user)
+            
+
+
+
+
     grand_total=0
     tax=0
     for cart_item in cart_items:
@@ -201,6 +212,10 @@ def place_order(request,total=0,quantity=0):
                 if True:
                     total+= (cart_item.product.price*cart_item.quantity)
                     quantity += cart_item.quantity
+
+                if couponexists:
+                    total=total-coupon.coupon_discount
+                
                 tax=(18*total)/100
                 grand_total=total+tax
             
@@ -208,6 +223,10 @@ def place_order(request,total=0,quantity=0):
                 if True:
                     total+= (cart_item.product.discount_price*cart_item.quantity)
                     quantity += cart_item.quantity
+
+                if couponexists:
+                    total=total-coupon.coupon_discount
+                    
                 tax=(18*total)/100
                 grand_total=total+tax
 
@@ -217,11 +236,14 @@ def place_order(request,total=0,quantity=0):
 
     
     if request.method=="POST":
+        address_id=request.POST.get('address')
+        print(address_id)
         # form=OrderForm(request.POST)
         # if form.is_valid():
             #Store all the billing information inside Order Table
 
-        address=UserAddress.objects.get(user=request.user,default=True)
+        address=UserAddress.objects.get(user=request.user,id=address_id)
+        print(address)
         data=Order()
         data.user=current_user
 

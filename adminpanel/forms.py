@@ -78,7 +78,7 @@ class OfferForm(forms.ModelForm):
 
     class Meta:
         model=Offer
-        fields=['offer_name','offer_rate','product']
+        fields=['offer_name','offer_rate','offer_description','product','offer_image']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,7 +89,7 @@ class EditOfferForm(forms.ModelForm):
 
     class Meta:
         model=Offer
-        fields=['offer_name','offer_rate']
+        fields=['offer_name','offer_rate','offer_description','offer_image']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

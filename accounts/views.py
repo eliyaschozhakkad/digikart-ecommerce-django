@@ -8,6 +8,9 @@ from .forms import RegistrationForm,UserForm,UserAddressForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 import requests
+from django.db.models import Q 
+from django.core.paginator import Paginator
+from weasyprint import HTML
 
 # Email verification
 from django.contrib.sites.shortcuts import get_current_site
@@ -261,10 +264,22 @@ def order_detail(request, order_id):
 
 @login_required(login_url='signin')
 def my_orders(request):
-    order=Order.objects.filter(user_id=request.user).order_by('-created_at')
-    context={
-        'orders':order,
+    if request.method == 'POST':
+      keyword = request.POST['keyword']
+      orders = Order.objects.filter(Q(order_number__icontains=keyword) | Q(email__icontains=keyword) | Q(phone__icontains=keyword)).order_by('-order_number')
+    else:
+      orders = Order.objects.filter().order_by('-order_number')
+    
+    paginator = Paginator(orders, 10)
+    page = request.GET.get('page')
+    paged_orders = paginator.get_page(page)
+    context = {
+      'orders': paged_orders
     }
+    # order=Order.objects.filter(user_id=request.user).order_by('-created_at')
+    # context={
+    #     'orders':order,
+    # }
     return render(request,"accounts/my_orders.html",context)
 
 @login_required(login_url='signin')
@@ -341,7 +356,7 @@ def cancel_order(request,order_id):
 
 @login_required(login_url='signin')
 def manage_address(request):
-    address_user=UserAddress.objects.filter(user=request.user).order_by('id')    
+    address_user=UserAddress.objects.filter(user=request.user).order_by('-default')    
     
     context={
        
@@ -411,6 +426,26 @@ def default_address(request,address_id):
     address_user.save()
 
     return redirect('manage_address')
+
+def getpdf(request,order_id):
+    order_detail=OrderProduct.objects.filter(order__order_number=order_id)
+    order=Order.objects.get(order_number=order_id)
+    subtotal=0
+    for i in order_detail:
+        subtotal+=i.product_price*i.quantity
+    context={
+        'order_detail':order_detail,
+        'order':order,
+        'subtotal':subtotal,
+    }
+    html = render_to_string("accounts/order_pdf.html", context)
+
+    pdf = HTML(string=html).write_pdf()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="MyOrder.pdf"'
+    return response
+
 
 
 

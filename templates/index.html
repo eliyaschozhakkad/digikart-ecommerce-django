@@ -3,15 +3,76 @@
 
 {% block content %}
 
+
 <!-- ========================= SECTION MAIN ========================= -->
 <section class="section-intro padding-y-sm">
-<div class="container">
+{% comment %} <div class="container">
 
 <div class="intro-banner-wrap">
 	<img src="{% static 'images/1.jpg' %}" class="img-fluid rounded">
 </div>
 
-</div> <!-- container //  -->
+</div> <!-- container //  --> {% endcomment %}
+
+
+
+<section class="section-intro padding-y-sm">
+	<div class="container">
+
+
+		<div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+			<div class="carousel-inner">
+			  <div class="carousel-item active">
+				<img class="d-block " style="width: 100%;height: 450px;" src="{% static 'images/3.jpg' %}" alt="First slide">
+				<div class="carousel-caption d-none d-md-block">
+					<h5 class="h1 text-left">DigiKart</h5>
+					<p class="text-left">Best offers for laptops and mobiles</p>
+				  </div>
+			  </div>
+			  {% for offer in offers  %}
+			  <div class="carousel-item">
+				<img class="d-block " style="width: 100%;height: 450px;" src="{{offer.offer_image.url}}" alt="Second slide">
+				<div class="carousel-caption d-none d-md-block">
+					<h5 class="h1 text-left">{{offer.offer_name}}</h5>
+					<p class="text-left">{{offer.offer_description}}</p>
+				  </div>
+			  </div>
+			  {% endfor %}
+			  {% comment %} <div class="carousel-item">
+				<img class="d-block " style="width: 100%;height: 450px;" src="{% static 'images/4.jpg' %}" alt="Third slide">
+			  </div>
+			</div> {% endcomment %}
+			<a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+			  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			  <span class="sr-only">Previous</span>
+			</a>
+			<a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+			  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+			  <span class="sr-only">Next</span>
+			</a>
+		  </div>
+
+	
+
+
+
+
+	
+	
+	
+	</div> <!-- container //  --> 
+
+
+
+
+
+
+
+
+
+
+
+
 </section>
 <!-- ========================= SECTION MAIN END// ========================= -->
 
