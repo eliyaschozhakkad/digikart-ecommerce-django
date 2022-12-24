@@ -29,6 +29,8 @@ def register(request):
 
     if request.method == "POST":
         form = RegistrationForm(request.POST)
+        # for field in form:
+        #     print("Field Error:", field.name,  field.errors)
         if form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
@@ -62,7 +64,7 @@ def register(request):
         form = RegistrationForm()
 
     context = {
-        'form': form
+            'form': form
     }
     return render(request, "accounts/register.html", context)
 
