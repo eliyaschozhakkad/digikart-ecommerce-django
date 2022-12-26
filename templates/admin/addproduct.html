@@ -9,21 +9,32 @@
   <main class="col-md-9">
     <main class="col-md-9">
       <header class="mb-4"><h4 class="card-title">Add Product</h4></header>
-      <form action="" method="POST" enctype="multipart/form-data">
+
+
+      <div id="alert-box"></div>
+
+      <div id="image-box">
+        <img src="" alt="" id="image" width="500px">
+      </div>
+
+      <form action="" method="POST" enctype="multipart/form-data" id="image-form" onsubmit="return false;">
         {% csrf_token %}
         <div class="form-row">
           <div class="col form-group" >
-           
+            
+            
             {{productform.as_p}}
+            <!-- {{productform.images}} -->
+           
             
+            <button class="btn btn-primary not-visible" id="confirm-btn">Confirm</button>
             
-          
         
            
            
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary"> Submit </button>
-            </div> <!-- form-group// -->      
+            {% comment %} <div class="form-group">  
+                <button type="" class="btn btn-primary"> Submit </button>
+            </div> <!-- form-group// -->       {% endcomment %}
                 
         </form>
       
@@ -37,7 +48,138 @@
   
   </section>
   <!-- ========================= SECTION CONTENT END// ========================= -->
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+<!-- Cropper js -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.1.0/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.1.0/cropper.css">
+
+<script>
+
+
+
+
+console.log(window.location.href)
+console.log('hello world')
+
+const image=document.getElementById('image')
+const price=document.getElementById('id_price')
+
+const alertBox=document.getElementById('alert-box')
+const imageBox=document.getElementById('image-box')
+const imageForm=document.getElementById('image-form')
+//console.log(imageForm)
+const confirmBtn=document.getElementById('confirm-btn')
+const input=document.getElementById('id_images')
+const csrf=document.getElementsByName('csrfmiddlewaretoken')
+console.log(csrf)
+input.addEventListener('change', ()=>{
+  console.log('changed')
+
+
+  confirmBtn.classList.remove('not-visible')
+
+  const img_data=input.files[0]
+  const url=URL.createObjectURL(img_data)
+  console.log(img_data)
+  console.log(url)
+  image.src=url
   
+  
+  //imageBox.innerHTML='<img src="${url}" id="image" width="500px">'
+  
+
+  var $image = $('#image');
+  
+  //console.log('js',image)
+  //console.log('jquery',$image)
+
+  $image.cropper({
+    aspectRatio: 16 / 9,
+    crop: function(event) {
+      console.log(event.detail.x);
+      console.log(event.detail.y);
+      console.log(event.detail.width);
+      console.log(event.detail.height);
+      console.log(event.detail.rotate);
+      console.log(event.detail.scaleX);
+      console.log(event.detail.scaleY);
+    }
+  });
+
+// Get the Cropper.js instance after initialized
+  var cropper = $image.data('cropper');
+
+  
+
+
+  confirmBtn.addEventListener('click',()=>{
+    
+    cropper.getCroppedCanvas().toBlob((blob)=>{
+      const fd=new FormData()
+      fd.append('csrfmiddlewaretoken',csrf[0].value)
+      fd.append('images',blob,'product_image.png')
+      fd.append('price',$('#id_price').val())
+      fd.append('product_name',$('#id_product_name').val())
+      fd.append('stock',$('#id_stock').val())
+      fd.append('category',$('#id_category').val())
+      fd.append('description',$('#id_description').val())
+      fd.append('is_available',$('#id_is_available').val())
+      
+      
+
+      $.ajax({
+        
+        type:'POST',
+        url:imageForm.action,
+        enctype:'multipart/form-data',
+        data:fd,
+        success:function(response){
+          console.log('success')
+
+          console.log(response.message)
+          if (response.message==='valid'){
+
+
+            window.location.href="/adminpanel/product"
+          }
+          if (response.message==='notvalid'){
+
+            alertBox.innerHTML='<div class="alert alert-primary" role="alert">Error </div>'
+            
+          }
+          
+          
+        },
+        error:function(error){
+          console.log('fail')
+          console.log(error)
+         
+          //alertBox.innerHTML='<div class="alert alert-primary" role="alert">Error </div>'
+        },
+        cache:false,
+        contentType:false,
+        processData:false,
+
+
+      })
+
+    })
+  })
+  
+
+})
+
+  
+
+  
+  
+</script>
+
 
 
 {% endblock %}

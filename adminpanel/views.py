@@ -16,6 +16,7 @@ from django.core.paginator import Paginator
 from orders.models import Order
 from orders.forms import OrderFormAdmin
 from offers.models import Offer
+from django.http import JsonResponse
 
 
 
@@ -265,14 +266,25 @@ def add_product(request):
     context={'productform':productform}
     if request.method == 'POST':
         form = ProductForm(request.POST,request.FILES)
+        for field in form:
+                print("Field Error:", field.name,  field.errors,field.value())
         if form.is_valid():
+            
+
             form.save()
+            messages.info(request, "The product item is added")
+            
+            return JsonResponse({'message':'valid'})
+
             messages.info(request, "The product item is added")
             return redirect("admin_product")
         else:
             
-            return render(request, "admin/addproduct.html",{'productform':form})
+            return JsonResponse({'message':'notvalid'})
+            
+            #return render(request, "admin/addproduct.html",{'productform':form})
 
+    
     return render(request,"admin/addproduct.html",context)
 
 # Admin Variation PAge
