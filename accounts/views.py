@@ -1,16 +1,17 @@
-from django.shortcuts import render, redirect,get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import cache_control
-from .models import Account,UserAddress
-from orders.models import OrderProduct,Order
-from .forms import RegistrationForm,UserForm,UserAddressForm
+from .models import Account, UserAddress
+from orders.models import OrderProduct, Order
+from .forms import RegistrationForm, UserForm, UserAddressForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 import requests
-from django.db.models import Q 
+from django.db.models import Q
 from django.core.paginator import Paginator
 from weasyprint import HTML
+import pyotp
 
 # Email verification
 from django.contrib.sites.shortcuts import get_current_site
@@ -64,61 +65,83 @@ def register(request):
         form = RegistrationForm()
 
     context = {
-            'form': form
+        'form': form
     }
     return render(request, "accounts/register.html", context)
 
 
-def register_phone(request):
+def login_otp(request):
 
-    if request.method == "POST":
-        form = RegistrationForm(request.POST)
-        # for field in form:
-        #     print("Field Error:", field.name,  field.errors)
-        if form.is_valid():
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
-            phone_number = form.cleaned_data['phone_number']
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            username = email.split("@")[0]
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        request.session['email1'] = email
 
-            user = Account.objects.create_user(
-                first_name=first_name, last_name=last_name, email=email, username=username, password=password)
-            user.phone_number = phone_number
+        if Account.objects.filter(email=email, is_active=True).exists():
+
+            user = Account.objects.get(email=email)
+
+            print('user exists')
+            # Generate a secret key
+            secret_key = pyotp.random_base32()
+            print('secret_key-'+secret_key)
+
+            # Generate a TOTP object using the secret key
+            totp = pyotp.TOTP(secret_key)
+            print(totp)
+
+            # Generate the OTP for the current time
+            otp = totp.now()
+            print('otp-'+otp)
+            user.otp = otp
             user.save()
 
-            # USER ACTIVATION
+            mail_subject = 'Please Signin to Digikart'
+            message = render_to_string('accounts/mail_otp.html', {
+                'user': user,
+                'otp': otp,
 
-            # current_site = get_current_site(request)
-            # mail_subject = 'Please activate your account'
-            # message = render_to_string('accounts/account_verification_email.html', {
-            #     'user': user,
-            #     'domain': current_site,
-            #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            #     'token': default_token_generator.make_token(user),
-            # })
-            # to_email = email
-            # send_email = EmailMessage(mail_subject, message, to=[to_email])
-            # send_email.send()
-            
-            messages.success(request, 'otp page')
-            return redirect('register')
+            })
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+            messages.success(request, 'Please login with otp')
+            return redirect('verify_otp')
 
-    else:
-        form = RegistrationForm()
+        else:
+            messages.success(request, 'User do not exist.Please Register')
+            print('no user')
 
-    context = {
-            'form': form
-    }
-    return render(request, "accounts/register_phone.html", context)
-    
+    return render(request, "accounts/login_otp.html")
 
 
+def verify_otp(request):
+    email = request.session['email1']
 
+    if request.method == 'POST':
 
+        otp = request.POST.get('otp')
 
+        print(email)
+        print(otp)
 
+        if Account.objects.filter(email=email).exists():
+            user = Account.objects.filter(email=email, otp=otp)
+
+            if user is not None:
+                user = Account.objects.get(email=email, otp=otp)
+                print("User is authenticated")
+
+                login(request, user)
+                user.otp = None
+                user.save()
+                return redirect('home')
+
+            else:
+                print("Invalid otp")
+                messages.success(request, 'Invalid OTP')
+                return redirect('verify_otp')
+
+    return render(request, "accounts/verify_otp.html")
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -208,12 +231,12 @@ def signout(request):
 
 @login_required(login_url='signin')
 def dashboard(request):
-    order=Order.objects.order_by('-created_at').filter(user_id=request.user)
-    orders_count=order.count()
-    context={
-        'orders_count':orders_count,
+    order = Order.objects.order_by('-created_at').filter(user_id=request.user)
+    orders_count = order.count()
+    context = {
+        'orders_count': orders_count,
     }
-    return render(request, 'accounts/dashboard.html',context)
+    return render(request, 'accounts/dashboard.html', context)
 
 
 def activate(request, uidb64, token):
@@ -301,7 +324,7 @@ def resetPassword(request):
         return render(request, "accounts/resetPassword.html")
 
 
-@login_required(login_url ='login')
+@login_required(login_url='login')
 def order_detail(request, order_id):
     order_detail = OrderProduct.objects.filter(order__order_number=order_id)
     order = Order.objects.get(order_number=order_id)
@@ -312,185 +335,194 @@ def order_detail(request, order_id):
         'order_detail': order_detail,
         'order': order,
         'subtotal': subtotal,
-        
+
     }
     return render(request, 'accounts/order_detail.html', context)
+
 
 @login_required(login_url='signin')
 def my_orders(request):
     if request.method == 'POST':
-      keyword = request.POST['keyword']
-      orders = Order.objects.filter(Q(order_number__icontains=keyword) | Q(email__icontains=keyword) | Q(phone__icontains=keyword)).order_by('-order_number')
+        keyword = request.POST['keyword']
+        orders = Order.objects.filter(Q(order_number__icontains=keyword) | Q(
+            email__icontains=keyword) | Q(phone__icontains=keyword)).order_by('-order_number')
     else:
-      orders = Order.objects.filter().order_by('-order_number')
-    
+        orders = Order.objects.filter().order_by('-order_number')
+
     paginator = Paginator(orders, 10)
     page = request.GET.get('page')
     paged_orders = paginator.get_page(page)
     context = {
-      'orders': paged_orders
+        'orders': paged_orders
     }
     # order=Order.objects.filter(user_id=request.user).order_by('-created_at')
     # context={
     #     'orders':order,
     # }
-    return render(request,"accounts/my_orders.html",context)
+    return render(request, "accounts/my_orders.html", context)
+
 
 @login_required(login_url='signin')
 def edit_profile(request):
-    #userprofile=get_object_or_404(Account,user=request.user)
-    if request.method=="POST":
-        user_form=UserForm(request.POST,instance=request.user)
-        #profile_form=UserAddressForm(request.POST,request.FILES,instance=userprofile)
+    # userprofile=get_object_or_404(Account,user=request.user)
+    if request.method == "POST":
+        user_form = UserForm(request.POST, instance=request.user)
+        # profile_form=UserAddressForm(request.POST,request.FILES,instance=userprofile)
         if user_form.is_valid():   # and #profile_form.is_valid()
             user_form.save()
-            #profile_form.save()
-            messages.success(request,'Your profile has been updated')
-    
+            # profile_form.save()
+            messages.success(request, 'Your profile has been updated')
+
     else:
-        user_form=UserForm(instance=request.user)
-        #profile_form=UserAddressForm(instance=userprofile)
-    
-    context={
-        'user_form':user_form,
-        #'profile_form':profile_form,
-        #'userprofile':userprofile
+        user_form = UserForm(instance=request.user)
+        # profile_form=UserAddressForm(instance=userprofile)
+
+    context = {
+        'user_form': user_form,
+        # 'profile_form':profile_form,
+        # 'userprofile':userprofile
     }
 
-    return render(request,"accounts/edit_profile.html",context)
+    return render(request, "accounts/edit_profile.html", context)
+
 
 @login_required(login_url='signin')
 def change_password(request):
-    if request.method=="POST":
-        current_password=request.POST['current_password']
-        new_password=request.POST['new_password']
-        confirm_password=request.POST['confirm_password']
+    if request.method == "POST":
+        current_password = request.POST['current_password']
+        new_password = request.POST['new_password']
+        confirm_password = request.POST['confirm_password']
 
-        user=Account.objects.get(username__exact=request.user.username)
+        user = Account.objects.get(username__exact=request.user.username)
 
         if new_password == confirm_password:
-            success=user.check_password(current_password)
+            success = user.check_password(current_password)
             if success:
                 user.set_password(new_password)
                 user.save()
 
-                messages.success(request,"Password Updated Successfully")
+                messages.success(request, "Password Updated Successfully")
                 return redirect('change_password')
             else:
-                messages.error(request,"Please enter valid current password")
+                messages.error(request, "Please enter valid current password")
                 return redirect('change_password')
         else:
-            messages.error(request,"Password does not match!")
+            messages.error(request, "Password does not match!")
             return redirect('change_password')
-    
-    
-    return render(request,"accounts/change_password.html")
+
+    return render(request, "accounts/change_password.html")
+
 
 @login_required(login_url='signin')
-def order_detail(request,order_id):
-    order_detail=OrderProduct.objects.filter(order__order_number=order_id)
-    order=Order.objects.get(order_number=order_id)
-    subtotal=0
+def order_detail(request, order_id):
+    order_detail = OrderProduct.objects.filter(order__order_number=order_id)
+    order = Order.objects.get(order_number=order_id)
+    subtotal = 0
     for i in order_detail:
-        subtotal+=i.product_price*i.quantity
-    context={
-        'order_detail':order_detail,
-        'order':order,
-        'subtotal':subtotal,
+        subtotal += i.product_price*i.quantity
+    context = {
+        'order_detail': order_detail,
+        'order': order,
+        'subtotal': subtotal,
     }
-    return render(request,"accounts/order_detail.html",context)
+    return render(request, "accounts/order_detail.html", context)
+
 
 @login_required(login_url='signin')
-def cancel_order(request,order_id):
-    order=Order.objects.get(order_number=order_id)
-    order.status="Cancelled"
+def cancel_order(request, order_id):
+    order = Order.objects.get(order_number=order_id)
+    order.status = "Cancelled"
     order.save()
-    messages.success(request,"Order is successfully cancelled")
+    messages.success(request, "Order is successfully cancelled")
     return redirect('my_orders')
+
 
 @login_required(login_url='signin')
 def manage_address(request):
-    address_user=UserAddress.objects.filter(user=request.user).order_by('-default')    
-    
-    context={
-       
-        'address':address_user,
+    address_user = UserAddress.objects.filter(
+        user=request.user).order_by('-default')
+
+    context = {
+
+        'address': address_user,
     }
 
-    return render(request,"accounts/manage_address.html",context)
+    return render(request, "accounts/manage_address.html", context)
+
 
 @login_required(login_url='signin')
 def add_address(request):
-    useraddress=UserAddress(user=request.user)
-    address_form=UserAddressForm(instance=useraddress)
-    if request.method=="POST":
-        address_form=UserAddressForm(request.POST,instance=useraddress)
+    useraddress = UserAddress(user=request.user)
+    address_form = UserAddressForm(instance=useraddress)
+    if request.method == "POST":
+        address_form = UserAddressForm(request.POST, instance=useraddress)
         if address_form.is_valid():
-              
+
             address_form.save()
-            
-            messages.success(request,'Your address has been updated')
-            return redirect('manage_address')          
-    context={
-        'address_form':address_form,
-        
+
+            messages.success(request, 'Your address has been updated')
+            return redirect('manage_address')
+    context = {
+        'address_form': address_form,
+
     }
-   
-    return render(request,"accounts/add_address.html",context)
+
+    return render(request, "accounts/add_address.html", context)
+
 
 @login_required(login_url='signin')
-def edit_address(request,address_id):
-    useraddress=UserAddress.objects.get(id=address_id)
-    address_form=UserAddressForm(instance=useraddress)
-    if request.method=="POST":
-        address_form=UserAddressForm(request.POST,instance=useraddress)
-        
-        if address_form.is_valid():   
+def edit_address(request, address_id):
+    useraddress = UserAddress.objects.get(id=address_id)
+    address_form = UserAddressForm(instance=useraddress)
+    if request.method == "POST":
+        address_form = UserAddressForm(request.POST, instance=useraddress)
+
+        if address_form.is_valid():
             address_form.save()
-            
-            messages.success(request,'Your address has been updated')
+
+            messages.success(request, 'Your address has been updated')
             return redirect('manage_address')
-    
-    
-    
-    context={
-        'address_form':address_form,
-        
+
+    context = {
+        'address_form': address_form,
+
     }
-   
-    return render(request,"accounts/edit_address.html",context)
-    
+
+    return render(request, "accounts/edit_address.html", context)
+
+
 @login_required(login_url='signin')
-def remove_address(request,address_id):
-    address_user=UserAddress.objects.get(pk=address_id)
+def remove_address(request, address_id):
+    address_user = UserAddress.objects.get(pk=address_id)
     address_user.delete()
-    messages.success(request,'Your address has been successfully removed')     
-    
+    messages.success(request, 'Your address has been successfully removed')
 
     return redirect('manage_address')
 
+
 @login_required(login_url='signin')
-def default_address(request,address_id):
-    address_user=UserAddress.objects.all()
+def default_address(request, address_id):
+    address_user = UserAddress.objects.all()
     for item in address_user:
-        item.default=False
+        item.default = False
     item.save()
-    address_user=UserAddress.objects.get(pk=address_id)
-    address_user.default=True
+    address_user = UserAddress.objects.get(pk=address_id)
+    address_user.default = True
     address_user.save()
 
     return redirect('manage_address')
 
-def getpdf(request,order_id):
-    order_detail=OrderProduct.objects.filter(order__order_number=order_id)
-    order=Order.objects.get(order_number=order_id)
-    subtotal=0
+
+def getpdf(request, order_id):
+    order_detail = OrderProduct.objects.filter(order__order_number=order_id)
+    order = Order.objects.get(order_number=order_id)
+    subtotal = 0
     for i in order_detail:
-        subtotal+=i.product_price*i.quantity
-    context={
-        'order_detail':order_detail,
-        'order':order,
-        'subtotal':subtotal,
+        subtotal += i.product_price*i.quantity
+    context = {
+        'order_detail': order_detail,
+        'order': order,
+        'subtotal': subtotal,
     }
     html = render_to_string("accounts/order_pdf.html", context)
 
@@ -499,15 +531,3 @@ def getpdf(request,order_id):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="MyOrder.pdf"'
     return response
-
-
-
-
-
-
-
-    
-
-    
-
-

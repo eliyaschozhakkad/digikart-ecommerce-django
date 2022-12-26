@@ -46,6 +46,7 @@ class Account(AbstractBaseUser):
     email = models.EmailField(max_length=100, unique=True)
     phone_number = models.CharField(max_length=50)
     profile_picture=models.ImageField(null=True,blank=True,upload_to='userprofile')
+    otp=models.IntegerField(null=True,blank=True)
 
     # required
     date_joined = models.DateTimeField(auto_now_add=True)
