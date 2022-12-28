@@ -7,71 +7,47 @@
     <div class="row">
       <aside class="col-lg-6">
         <div class="card">
-        <div class="card-body">
-          <h4 class="card-title mb-4">Shipping address</h4>
-          <a href="{% url 'adduser_address'%}" class="btn btn-success">Add Address</a>
-          <form action="{% url 'place_order' %}" method="POST">
-            
-            {% csrf_token %}
-            {% if not address_user %}
-            
-            
-            
-            
-            
-            
-              
-             
-            
-          
-       
-        <!-- card.// -->
-        {% else %}
+          <div class="card-body">
+                <h4 class="card-title mb-4">Shipping address</h4>
+                <a href="{% url 'adduser_address'%}" class="btn btn-success">Add Address</a>
+                <form action="{% url 'place_order' %}" method="POST">
+                  
+                  {% csrf_token %}
+                  {% if not address_user %}
 
-        <div class="card-body d-flex">
+              <!-- card.// -->
+              {% else %}
 
-             
-          {% for address in address_user %}
+              <div class="p-3 d-flex justify-content-center">
+                {% for address in address_user %}
+                <div class="card mr-4" style="width: 15rem;">
+                    <div class="card-body">
+                        {% if address.default %}
+                        <strong class="d-inline-block mr-3 text-primary">Default Address</strong>
+                        {% else %}
+                        {% comment %} <strong class="d-inline-block mr-3">Other Address</strong> {% endcomment %}
+                        {% endif %}
+                          <p class="card-tex mb-0">{{address}}</p>
+                          <p class="card-tex mb-0">{{address.address_line_1}}</p>
+                          <p class="card-text mb-0">{{address.address_line_2}}</p>
+                          <p class="card-text mb-0">{{address.city}}</p>
+                          <p class="card-text mb-0">{{address.state}}</p>
+                          <p class="card-text mb-0">{{address.pincode}}</p>
+                          <p class="card-text mb-0">{{address.email}}</p>
+                          <p class="card-text mb-0">{{address.phone_number}}</p>
+                          <br>
+                          <input type="radio" id="address" name="address" value="{{address.id}}">
+                            <label for="address"><strong>Deliver to this address</strong></label><br>
+                            <div class="text-center">
+                              <a href="{% url 'edit_address' address.id %}" class="btn btn-primary">Edit</a>
+                            </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+              </div> 
 
-         <div class="card mr-4 " style="width: 18rem;">
-           
-             <div class="card-body">
-                 {% if address.default %}
-                 <strong class="d-inline-block mr-3 text-primary">Default Address</strong>
-                 {% else %}
-                 {% comment %} <strong class="d-inline-block mr-3">Other Address</strong> {% endcomment %}
-                 {% endif %}
-               <p class="card-tex mb-0">{{address}}</p>
-               <p class="card-tex mb-0">{{address.address_line_1}}</p>
-               <p class="card-text mb-0">{{address.address_line_2}}</p>
-               <p class="card-text mb-0">{{address.city}}</p>
-               <p class="card-text mb-0">{{address.state}}</p>
-               <p class="card-text mb-0">{{address.pincode}}</p>
-               <p class="card-text mb-0">{{address.email}}</p>
-               <p class="card-text mb-0">{{address.phone_number}}</p>
-              
-               <br>
-               
-               <input type="radio" id="address" name="address" value="{{address.id}}">
-                <label for="address"><strong>Deliver to this address</strong></label><br>
-               <a href="{% url 'edit_address' address.id %}" class="btn btn-primary">Edit</a>
-               
-              
-               
-             </div>
-             {% endfor %}
-           </div>
-           
-           
-          
-           {% endif %}
-
-         </div> <!-- row.// -->
-     </div> <!-- card-body .// -->
-
-
-
-       
+          </div> <!-- card-body .// -->
       </aside>
       <!-- col.// -->
       <aside class="col-lg-6">
