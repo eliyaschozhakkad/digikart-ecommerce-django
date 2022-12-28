@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from django.contrib.messages import constants as messages
 import os
 from pathlib import Path
 from decouple import config
@@ -27,22 +28,22 @@ SECRET_KEY = config('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG',default=True,cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles", 
+    "django.contrib.staticfiles",
     "store",
     "category",
     "accounts",
@@ -53,10 +54,6 @@ INSTALLED_APPS = [
     "storages",
 
 ]
-
-
-
-
 
 
 MIDDLEWARE = [
@@ -87,7 +84,7 @@ TEMPLATES = [
                 "store.context_processors.product_items",
                 "accounts.context_processors.accounts",
                 "carts.context_processors.counter",
-               
+
             ],
         },
     },
@@ -95,8 +92,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "digikart.wsgi.application"
 
-#Using custom user model
-AUTH_USER_MODEL='accounts.Account'
+# Using custom user model
+AUTH_USER_MODEL = 'accounts.Account'
 
 
 # Database
@@ -107,14 +104,13 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": config('RDS_NAME'),
-        "USER":config('RDS_USER'),
-        "PASSWORD":config('RDS_PASSWORD'),
-        "HOST":config('RDS_HOST'),
-        "PORT":config('RDS_PORT')
+        "USER": config('RDS_USER'),
+        "PASSWORD": config('RDS_PASSWORD'),
+        "HOST": config('RDS_HOST'),
+        "PORT": config('RDS_PORT')
 
     }
 }
-
 
 
 # Password validation
@@ -124,9 +120,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator", },
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator", },
 ]
 
 
@@ -145,51 +141,91 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-STATICFILES_DIR=[
-    os.path.join(BASE_DIR,'static')
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
+AWS_ACCESS_KEY_ID=config('AWS_ACCESS_KEY_ID')
+
+AWS_SECRET_ACCESS_KEY=config('AWS_SECRET_ACCESS_KEY')
+
+AWS_STORAGE_BUCKET_NAME=config('AWS_STORAGE_BUCKET_NAME')
+
+AWS_S3_CUSTOM_DOMAIN=f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+AWS_DEFAULT_ACL='public-read'
+
+AWS_S3_OBJECT_PARAMETERS={
+    'CacheControl':'max-age=86400'
+}
+
+AWS_LOCATION='static'
+
+AWS_QUERYSTRING_AUTH=False
+
+AWS_HEADRERS={
+    'Access-Control-Allow-Origin':'*',
+}
+
+
+
+STATIC_URL=f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+
+MEDIA_URL=f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
+
+
+
+#STATIC_URL = "static/"
+
+STATICFILES_DIR = [
+    os.path.join(BASE_DIR, 'static')
 ]
 
-STATIC_ROOT=os.path.join(BASE_DIR,'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
-# AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-# AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
 
-
-#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-#media files configuration
-MEDIA_URL='media/'
-MEDIA_ROOT=os.path.join(BASE_DIR,'media')
+# media files configuration
+
+#MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+
+
+
+
+
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
-from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
-   
+
 }
 
 
-#SMTP CONFIGURATION
+# SMTP CONFIGURATION
 
 
-EMAIL_HOST=config('EMAIL_HOST')
-EMAIL_PORT=config('EMAIL_PORT',cast=int)
-EMAIL_HOST_USER=config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD=config('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS=config('EMAIL_USE_TLS',cast=bool)
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 
-#RAZORPAY
+# RAZORPAY
 RAZOR_KEY_ID = config('RAZOR_KEY_ID')
-RAZOR_KEY_SECRET =config('RAZOR_KEY_SECRET')
-
-
+RAZOR_KEY_SECRET = config('RAZOR_KEY_SECRET')
