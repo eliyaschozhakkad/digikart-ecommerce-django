@@ -94,7 +94,7 @@
 		
 		<div class="card card-product-grid">
 			<a href="{{products.get_url}}" class="img-wrap"> <img src="{{products.images.url}}"> </a>
-			<figcaption class="info-wrap">
+			<figcaption class="info-wrap" style="height: 5rem;">
 				
 				<a href="{{products.get_url}}" class="title">{{products.product_name}}</a>
 				
@@ -102,7 +102,7 @@
 				{% if products.discount_price %}
 				
 				
-				<div class="price mt-1 h1 text-success">{{products.offer_rate}}%</div> <!-- price-wrap.// -->
+				<div class="price mt-1 h5 text-success">{{products.offer_rate}}%</div> <!-- price-wrap.// -->
 				<div class="price mt-1 d-flex">
 					<p><del>Rs {{products.price}}</del> </p>
 					<p class="mx-1 text-primary">Rs{{products.discount_price}}</p>
