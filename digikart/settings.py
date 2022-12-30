@@ -19,11 +19,10 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+live_site=True
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = config('SECRET_KEY')
 
 
@@ -99,18 +98,29 @@ AUTH_USER_MODEL = 'accounts.Account'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+if live_site:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config('RDS_NAME'),
+            "USER": config('RDS_USER'),
+            "PASSWORD": config('RDS_PASSWORD'),
+            "HOST": config('RDS_HOST'),
+            "PORT": config('RDS_PORT')
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config('RDS_NAME'),
-        "USER": config('RDS_USER'),
-        "PASSWORD": config('RDS_PASSWORD'),
-        "HOST": config('RDS_HOST'),
-        "PORT": config('RDS_PORT')
-
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config('DB_NAME'),
+            "USER":config('DB_USER'),
+            "PASSWORD":config('DB_PASSWORD'),
+            "HOST":"localhost"
+
+        }
+    }
 
 
 # Password validation
@@ -141,49 +151,55 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+if live_site:
 
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-
-AWS_ACCESS_KEY_ID=config('AWS_ACCESS_KEY_ID')
-
-AWS_SECRET_ACCESS_KEY=config('AWS_SECRET_ACCESS_KEY')
-
-AWS_STORAGE_BUCKET_NAME=config('AWS_STORAGE_BUCKET_NAME')
-
-AWS_S3_CUSTOM_DOMAIN=f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-
-AWS_DEFAULT_ACL='public-read'
-
-AWS_S3_OBJECT_PARAMETERS={
-    'CacheControl':'max-age=86400'
-}
-
-AWS_LOCATION='static'
-
-AWS_QUERYSTRING_AUTH=False
-
-AWS_HEADRERS={
-    'Access-Control-Allow-Origin':'*',
-}
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
+    AWS_ACCESS_KEY_ID=config('AWS_ACCESS_KEY_ID')
 
-STATIC_URL=f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+    AWS_SECRET_ACCESS_KEY=config('AWS_SECRET_ACCESS_KEY')
 
-MEDIA_URL=f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+    AWS_STORAGE_BUCKET_NAME=config('AWS_STORAGE_BUCKET_NAME')
 
+    AWS_S3_CUSTOM_DOMAIN=f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 
+    AWS_DEFAULT_ACL='public-read'
 
+    AWS_S3_OBJECT_PARAMETERS={
+        'CacheControl':'max-age=86400'
+    }
 
-#STATIC_URL = "static/"
+    AWS_LOCATION='static'
+
+    AWS_QUERYSTRING_AUTH=False
+
+    AWS_HEADRERS={
+        'Access-Control-Allow-Origin':'*',
+    }
+
+    STATIC_URL=f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+
+    MEDIA_URL=f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
+else:
+
+    STATIC_URL = "static/"
+    MEDIA_URL = '/media/'
+    
+
 
 STATICFILES_DIR = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 
 
 
@@ -198,8 +214,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #MEDIA_URL = '/media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 

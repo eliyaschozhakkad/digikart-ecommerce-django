@@ -42,7 +42,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model=Product
-        fields=['product_name','price','stock','category','images','description','is_available']
+        fields=['product_name','price','stock','category','images','description','is_available','featured']
         
 
     def __init__(self,*args,**kwargs):
@@ -57,6 +57,7 @@ class ProductForm(forms.ModelForm):
             self.fields[field].widget.attrs['class']='form-control' 
 
         self.fields['is_available'].widget.attrs['class']='form-check-input ml-2 mt-1'
+        self.fields['featured'].widget.attrs['class']='form-check-input ml-2 mt-1'
     def clean(self):
         cleaned_data=super(ProductForm,self).clean()
         productname=cleaned_data.get('product_name')

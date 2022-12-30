@@ -218,9 +218,9 @@ def admin_product(request):
         Q(stock__icontains=keyword)
         ).order_by('id')
     else:
-        product=Product.objects.filter()
+        product=Product.objects.filter().order_by('id')
 
-    paginator=Paginator(product,4)
+    paginator=Paginator(product,10)
     page=request.GET.get('page')
     paged_product=paginator.get_page(page)
     context={
@@ -266,8 +266,8 @@ def add_product(request):
     context={'productform':productform}
     if request.method == 'POST':
         form = ProductForm(request.POST,request.FILES)
-        for field in form:
-                print("Field Error:", field.name,  field.errors,field.value())
+        # for field in form:
+        #         print("Field Error:", field.name,  field.errors,field.value())
         if form.is_valid():
             
 

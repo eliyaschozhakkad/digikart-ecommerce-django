@@ -24,7 +24,7 @@ def alert(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home(request):
     
-    products = Product.objects.all().filter(is_available=True).order_by('id')
+    products = Product.objects.all().filter(is_available=True,featured=True).order_by('id')
     offers=Offer.objects.all().order_by('id')
     
     context = {

@@ -34,7 +34,7 @@
           <div class="row">
             <div class="item-option-select">
               <h6>Choose Color</h6>
-              <select name="color" class="form-control" required>
+              <select name="color" class="form-control" required style="width:110px;">
                 <option value="" disabled selected>Select</option>
                 {% for i in single_product.variation_set.colors  %}
 				<option value="{{i.variation_value|lower}}">{{i.variation_value|capfirst}}</option>
@@ -48,7 +48,7 @@
           <div class="row"> 
             <div class="item-option-select">
               <h6>Select RAM</h6>
-              <select name="ram" class="form-control" required>
+              <select name="ram" class="form-control" required style="width:110px;">
                 <option value="" disabled selected>Select</option>
                 {% for i in single_product.variation_set.rams  %}
 				<option value="{{i.variation_value|lower}}">{{i.variation_value|capfirst}}</option>
