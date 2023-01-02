@@ -409,8 +409,8 @@ def apply_coupon(request,total=0,quantity=0,cart_items=None):
             return JsonResponse({'no_coupon':'Not Valid Coupon'})
             
 def remove_coupon(request):
-    couponcode=request.session['appliedcode']
-    coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+    
+    coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
     coupon.user=None
     coupon.save()
     return redirect('checkout')

@@ -26,11 +26,44 @@ from offers.models import Coupon
 
 @login_required
 def payments_paypal(request,total=0):
+    current_user=request.user
+    cart_items=CartItem.objects.filter(user=current_user)
+    total=0
+    quantity=0
+    grand_total=0
+    tax=0
+    for cart_item in cart_items:
+
+        if not cart_item.product.discount_price:
+                if True:
+                    total+= (cart_item.product.price*cart_item.quantity)
+                    quantity += cart_item.quantity
+
+               
+                
+                tax=(18*total)/100
+                grand_total=total+tax
+            
+        else:
+                if True:
+                    total+= (cart_item.product.discount_price*cart_item.quantity)
+                    quantity += cart_item.quantity
+
+            
+                    
+                tax=(18*total)/100
+                grand_total=total+tax
+    
     body=json.loads(request.body)
     print(body)
     order_number=body['orderID']
     order=Order.objects.get(user=request.user,is_ordered=False,order_number=body['orderID'])
-
+    couponexists=Coupon.objects.filter(is_valid=True,is_expired=False,user=request.user).exists()
+    if couponexists:
+            coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
+            grand_total=grand_total-coupon.coupon_discount
+            order.order_total=grand_total
+    
     #Store transaction details in payment table
     payment=Payment(
         user=request.user,
@@ -78,11 +111,11 @@ def payments_paypal(request,total=0):
 
     grand_total=0
     coupon=None
-    couponcode=request.session['appliedcode']
+    #couponcode=request.session['appliedcode']
        
-    couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+    couponexists=Coupon.objects.filter(is_valid=True,is_expired=False,user=request.user).exists()
     if couponexists:
-        coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+        coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
         grand_total=grand_total-coupon.coupon_discount
         coupon.is_valid=False
         coupon.save()
@@ -140,12 +173,12 @@ def payments_razorpay_create(request):
                 tax=(18*total)/100
                 grand_total=total+tax
     
-    #coupon=None
-        couponcode=request.session['appliedcode']
+        #coupon=None
+        #couponcode=request.session['appliedcode']
         
-        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        couponexists=Coupon.objects.filter(is_valid=True,is_expired=False,user=request.user).exists()
         if couponexists:
-            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
             grand_total=grand_total-coupon.coupon_discount
             
     
@@ -184,7 +217,7 @@ def payments_razorpay_create(request):
             'grand_total':int(grand_total),
             'razorpay_merchant_key':settings.RAZOR_KEY_ID,
             'razorpay_order_id':razorpay_order_id,
-            "callback_url": "http://" + site +"/orders/payments_razorpay/",
+            "callback_url": "https://" + site +"/orders/payments_razorpay/",
             
                 
             }
@@ -417,11 +450,11 @@ def payment_success(request):
         grand_total=total+tax
 
         #coupon=None
-        couponcode=request.session['appliedcode']
+        #couponcode=request.session['appliedcode']
         
-        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        couponexists=Coupon.objects.filter(is_valid=True,is_expired=False,user=request.user).exists()
         if couponexists:
-            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
             grand_total=grand_total-coupon.coupon_discount
             coupon.is_valid=False
             coupon.save()
@@ -474,11 +507,11 @@ def order_complete(request):
                 subtotal+=item.product.discount_price+item.quantity
         
         #coupon=None
-        couponcode=request.session['appliedcode']
+        #couponcode=request.session['appliedcode']
         
-        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        couponexists=Coupon.objects.filter(is_valid=True,is_expired=False,user=request.user).exists()
         if couponexists:
-            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
             subtotal=subtotal-coupon.coupon_discount
             coupon.is_valid=False
             coupon.save()
@@ -575,11 +608,11 @@ def cod(request,total=0,quantity=0):
         grand_total=total+tax
 
         #coupon=None
-        couponcode=request.session['appliedcode']
+        #couponcode=request.session['appliedcode']
         
-        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        couponexists=Coupon.objects.filter(is_valid=True,is_expired=False,user=request.user).exists()
         if couponexists:
-            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
             grand_total=grand_total-coupon.coupon_discount
             coupon.is_valid=False
             coupon.save()
