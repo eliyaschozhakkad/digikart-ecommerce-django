@@ -93,7 +93,11 @@
                         </p>
                         </td>
                         <td class="text-center">{{ ordered_product.quantity }}</td>
+                        {% if not ordered_product.product.discount_price  %}
                         <td class="text-center">₹ {{ ordered_product.product_price }}</td>
+                        {% else %}
+                        <td class="text-center">₹ {{ ordered_product.product.discount_price }}</td>
+                        {% endif %}
                       </tr>
                       {% endfor %}
                     </tbody>

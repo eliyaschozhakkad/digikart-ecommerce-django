@@ -11,6 +11,7 @@ urlpatterns = [
     path("variation/", views.admin_variation, name='admin_variation'),
     path("order/", views.admin_order, name='admin_order'),
     path("offer/", views.admin_offer, name='admin_offer'),
+    path("coupon/", views.admin_coupon, name='admin_coupon'),
 
     path("user/unblock/<int:id>/", views.unblock, name='unblock'),
     path("user/block/<int:id>/", views.block, name='block'),
@@ -27,6 +28,9 @@ urlpatterns = [
     path("offer/edit/<int:id>/", views.offer_edit, name='offer_edit'),
     path("offer/delete/<int:id>/", views.offer_delete, name='offer_delete'),
     path("offer/addoffer/", views.add_offer, name='add_offer'),
+    path("coupon/addcoupon/", views.add_coupon, name='add_coupon'),
+    path("coupon/edit/<int:id>/", views.coupon_edit, name='coupon_edit'),
+    path("coupon/delete/<int:id>/", views.coupon_delete, name='coupon_delete'),
     
 
    

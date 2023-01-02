@@ -94,9 +94,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 <script type="text/javascript">
 
-    $("registration_form"). submit(function(e){
-    e. preventDefault();
-    });
+    
 
     
     $(function() {
@@ -153,7 +151,7 @@
        }
 
        function check_mobile() {
-          var pattern = /^[0-9]*$/;
+          var pattern = /^[1-9][0-9]{9}$/;
           var mobile = $("#mobile").val();
           if (pattern.test(mobile) && mobile !== '') {
              $("#mobile_error_message").hide();
@@ -162,8 +160,9 @@
             $("#mobile_error_message").html("Please enter your phone number.");
              $("#mobile_error_message").show();
              $("#mobile").css("border-bottom","2px solid #F90A0A");
+             error_mobile = true;
           }else {
-             $("#mobile_error_message").html("Please enter a valid phone number.");
+             $("#mobile_error_message").html("Please enter 10 digit phone number.");
              $("#mobile_error_message").show();
              $("#mobile").css("border-bottom","2px solid #F90A0A");
              error_mobile = true;
@@ -243,6 +242,7 @@
           error_email = false;
           error_password = false;
           error_retype_password = false;
+          error_mobile=false;
 
           check_fname();
           check_sname();
@@ -251,7 +251,7 @@
           check_password();
           check_retype_password();
 
-          if (error_fname === false && error_sname === false && error_email === false && error_password === false && error_retype_password === false) {
+          if (error_fname === false && error_sname === false && error_email === false && error_password === false && error_retype_password === false && error_mobile === false) {
              
              
              return true;

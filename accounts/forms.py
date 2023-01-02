@@ -63,5 +63,6 @@ class UserAddressForm(forms.ModelForm):
         super(UserAddressForm,self).__init__(*args,**kwargs)
         
         for field in self.fields:
-            self.fields[field].widget.attrs['class']='form-control' 
+            self.fields[field].widget.attrs['class']='form-control my-2'
+        self.fields['default'].widget.attrs['class']='form-check-input ml-2 mt-1' 
 

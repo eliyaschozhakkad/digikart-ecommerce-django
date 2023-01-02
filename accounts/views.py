@@ -28,6 +28,9 @@ from carts.models import Cart, CartItem
 
 def register(request):
 
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == "POST":
         form = RegistrationForm(request.POST)
         # for field in form:
@@ -146,6 +149,9 @@ def verify_otp(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def signin(request):
+
+    if request.user.is_authenticated:
+        return redirect('home')
 
     if request.method == "POST":
         email = request.POST['email']
@@ -347,7 +353,7 @@ def my_orders(request):
         orders = Order.objects.filter(Q(order_number__icontains=keyword) | Q(
             email__icontains=keyword) | Q(phone__icontains=keyword)).order_by('-order_number')
     else:
-        orders = Order.objects.filter().order_by('-order_number')
+        orders = Order.objects.filter(user=request.user).order_by('-order_number')
 
     paginator = Paginator(orders, 10)
     page = request.GET.get('page')
@@ -355,10 +361,7 @@ def my_orders(request):
     context = {
         'orders': paged_orders
     }
-    # order=Order.objects.filter(user_id=request.user).order_by('-created_at')
-    # context={
-    #     'orders':order,
-    # }
+    
     return render(request, "accounts/my_orders.html", context)
 
 
@@ -415,7 +418,7 @@ def change_password(request):
 
 @login_required(login_url='signin')
 def order_detail(request, order_id):
-    order_detail = OrderProduct.objects.filter(order__order_number=order_id)
+    order_detail = OrderProduct.objects.filter(order__order_number=order_id,user=request.user).order_by('id')
     order = Order.objects.get(order_number=order_id)
     subtotal = 0
     for i in order_detail:
@@ -512,7 +515,7 @@ def default_address(request, address_id):
 
     return redirect('manage_address')
 
-
+@login_required(login_url='signin')
 def getpdf(request, order_id):
     order_detail = OrderProduct.objects.filter(order__order_number=order_id)
     order = Order.objects.get(order_number=order_id)

@@ -5,120 +5,132 @@
     <!-- ============================ COMPONENT 1 ================================= -->
    
     <div class="row">
-      <aside class="col-lg-6">
+      <aside class="col-lg-6 mb-5">
         <div class="card">
           <div class="card-body">
                 <h4 class="card-title mb-4">Shipping address</h4>
                 <a href="{% url 'adduser_address'%}" class="btn btn-success">Add Address</a>
                 <form action="{% url 'place_order' %}" method="POST">
                   
-                  {% csrf_token %}
-                  {% if not address_user %}
+                {% csrf_token %}
+                {% if not address_user %}
 
               <!-- card.// -->
-              {% else %}
-
-              <div class="p-3 d-flex justify-content-center">
-                {% for address in address_user %}
-                <div class="card mr-4" style="width: 15rem;min-width:">
-                    <div class="card-body">
-                        {% if address.default %}
-                        <strong class="d-inline-block mr-3 text-primary">Default Address</strong>
-                        {% else %}
-                        {% comment %} <strong class="d-inline-block mr-3">Other Address</strong> {% endcomment %}
-                        {% endif %}
-                          <p class="card-tex mb-0">{{address}}</p>
-                          <p class="card-tex mb-0">{{address.address_line_1}}</p>
-                          <p class="card-text mb-0">{{address.address_line_2}}</p>
-                          <p class="card-text mb-0">{{address.city}}</p>
-                          <p class="card-text mb-0">{{address.state}}</p>
-                          <p class="card-text mb-0">{{address.pincode}}</p>
-                          <p class="card-text mb-0">{{address.email}}</p>
-                          <p class="card-text mb-0">{{address.phone_number}}</p>
-                          <br>
-                          <input type="radio" id="address" name="address" value="{{address.id}}">
-                            <label for="address"><strong>Deliver to this address</strong></label><br>
-                            <div class="text-center">
-                              <a href="{% url 'edit_address' address.id %}" class="btn btn-primary">Edit</a>
-                            </div>
-                    </div>
-                </div>
-                {% endfor %}
-                {% endif %}
-              </div> 
+                {% else %}
+              <div class="container">    
+              
+                  <div class="row gy-3 my-3 g-0">
+                    {% for address in address_user %}
+                        <div class=" col-md-12 col-lg-12 col-xl-6 p-0 my-2">
+                          <div class="card mr-4" style="width: 15rem;">
+                                <div class="card-body">
+                                    {% if address.default %}
+                                    <strong class="d-inline-block mr-3 text-primary">Default Address</strong>
+                                    {% else %}
+                                    {% comment %} <strong class="d-inline-block mr-3">Other Address</strong> {% endcomment %}
+                                    {% endif %}
+                                      <p class="card-tex mb-0">{{address}}</p>
+                                      <p class="card-tex mb-0">{{address.address_line_1}}</p>
+                                      <p class="card-text mb-0">{{address.address_line_2}}</p>
+                                      <p class="card-text mb-0">{{address.city}}</p>
+                                      <p class="card-text mb-0">{{address.state}}</p>
+                                      <p class="card-text mb-0">{{address.pincode}}</p>
+                                      <p class="card-text mb-0">{{address.email}}</p>
+                                      <p class="card-text mb-0">{{address.phone_number}}</p>
+                                      <br>
+                                      <input type="radio" id="address" name="address" value="{{address.id}} " required 
+                                      {% if address.default %}checked{% endif %} 
+                                      >
+                                        <label for="address"><strong>Deliver to this address</strong></label><br>
+                                        <div class="text-center">
+                                          <a href="{% url 'edit_address' address.id %}" class="btn btn-primary">Edit</a>
+                                        </div>
+                                </div>
+                          </div>
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                  </div> 
+              </div>
 
           </div> <!-- card-body .// -->
+        </div>
       </aside>
       <!-- col.// -->
+      
       <aside class="col-lg-6">
-        <div class="card">
-          <div class="card-body">
-            <table class="table table-borderless table-shopping-cart">
-                <thead class="text-muted">
-                  <tr class="small text-uppercase">
-                    <th scope="col">Product</th>
-                    <th scope="col" width="120">Quantity</th>
-                    <th scope="col" width="120">Price</th>
-                    
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for cart_item in cart_items  %}
-                  <tr>
-                    <td>
-                      <figure class="itemside align-items-center">
-                        <div class="aside">
-                          <img src="{{cart_item.product.images.url}}" class="img-sm" />
-                        </div>
-                        <figcaption class="info">
-                          <a href="{{cart_item.product.get_url}}" class="title text-dark"
-                            >{{cart_item.product.product_name}}</a
-                          >
-                          <p class="text-muted small">
-                            
-                            {% if cart_item.variations.all %}
-                            {% for item in cart_item.variations.all  %}
-                            {{item.variation_category|capfirst}}:{{item.variation_value|capfirst}}<br>
-                            
-                            {% endfor %}
-                            
-                            {% endif %}
-                          </p>
-                        </figcaption>
-                      </figure>
-                    </td>
-                    <td>
-                      <!-- col.// -->
-                     <label for="">{{cart_item.quantity}}</label>
-                      <!-- col.// -->
-                    </td>
-                    <td>
-                      <div class="price-wrap">
-                        {% if cart_item.product.discount_price %}
-                        <var class="price">Rs {{cart_item.sub_total_discount}}</var>
-                        <small class="text-muted"> Rs {{cart_item.product.discount_price}} each </small>
-                        {% else %}
-                        <var class="price">Rs {{cart_item.sub_total}}</var>
-                        <small class="text-muted"> Rs {{cart_item.product.price}} each </small>
-
-                        {% endif %}
-                        
-                      </div>
-                      <!-- price-wrap .// -->
-                    </td>
-                   
-                  </tr>
-                  
-                  {% endfor %}
-                </tbody>
-              </table>
+        
+        <div class="card" style="height:95%;">
+          <div class="card-body" >
+            {{coupon.coupon_code}}
+            {% if not coupon %}    
+            <p class="text-primary text-center">Already Have a Coupon?</p>
+           
+            <div class="alert alert-success alert-dismissible fade show" style="display:none;" id="coupon_message"  role="alert">
+              <p id="applied_coupon" class="text-center"></p>
+              <!-- ajax response -->
+            </div>
             
-            <button class="btn btn-primary btn-block" type="submit" name="submit">
-              Place Order
-            </button>
-            <a href="{% url 'store' %}" class="btn btn-light btn-block"
-              >Continue Shopping</a
-            >
+            
+              
+            <div class="input-group mb-3" id="apply_coupon"> 
+                <input type="text" class="form-control" placeholder="Enter Coupon" aria-label="coupon" id="coupon">
+                <button class="btn btn-outline-primary" type="button" id="coupon-button">Apply</button>  
+            </div>
+           
+            <div>
+              <p class="btn btn-outline-primary mb-2" type="button" id="appliedcoupons" style="display:none;"></p>
+              <a href="{% url 'remove_coupon' %}" class="text-danger text-right" type="text" id="remove_coupon" style="display:none;">Remove coupon</a>
+            </div>
+            {% else %}
+            <div>
+              <p class="btn btn-outline-primary mb-2" type="button">{{coupon.coupon_code}}</p>
+              <a href="{% url 'remove_coupon' %}" class="text-danger text-right" type="text">Remove coupon</a>
+            </div>
+
+            {% endif %} 
+            
+            
+            
+            
+            
+            
+            <dl class="dlist-align">
+              <dt>Total price:</dt>
+              <dd class="text-right">Rs  {{total}}</dd>
+            </dl>
+            <dl class="dlist-align">
+              <dt>Tax:</dt>
+              <dd class="text-right">Rs {{tax}}</dd>
+            </dl>
+            {% if not coupon %}  
+            <dl class="dlist-align" style="display:none;" id="discount_box">
+              <dt class="text-danger font-weight-bold">Coupon:</dt>
+              <dd class="text-right text-danger font-weight-bold" id="discount"></dd>
+            </dl>
+            <dl class="dlist-align">
+              <dt >Grand Total:</dt>
+              <dd class="text-right text-dark b" id="grand_total"><strong>Rs {{grand_total}}</strong></dd>
+            </dl>
+            <hr />
+            {% else %}
+            <dl class="dlist-align" >
+              <dt class="text-danger font-weight-bold">Coupon:</dt>
+              <dd class="text-right text-danger font-weight-bold">Rs -{{coupon.coupon_discount}}</dd>
+            </dl>
+            <dl class="dlist-align">
+              <dt >Grand Total:</dt>
+              <dd class="text-right text-dark b" id="grand_total"><strong>Rs {{grand_total}}</strong></dd>
+            </dl>
+            <hr />
+
+
+            {% endif %}
+            <p class="text-center mb-3">
+              <img src="{% static './images/misc/payments.png' %}" height="26" />
+            </p>
+            <button class="btn btn-primary btn-block" type="submit" name="submit">Place Order</button>
+            <a href="{% url 'store' %}" class="btn btn-light btn-block">Continue Shopping</a>
           </form>
           </div>
           <!-- card-body.// -->
@@ -133,4 +145,59 @@
   </div>
   <!-- container .//  -->
 </section>
+
+<script>
+  
+  function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+  
+  const csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+  document.getElementById('coupon-button').addEventListener('click', function() {
+    const coupon = document.getElementById('coupon').value;
+    alert(coupon)
+  
+    // Send a POST request to the server
+    $.ajax({
+      url: '{% url 'apply_coupon' %}',
+      type: 'POST',
+      data: {'key': coupon},
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+      },
+
+      success: function(data) {
+          alert(data.coupon);
+          $("#coupon_message").show();
+          if(data.expired_coupon){
+            $("#applied_coupon").text(data.expired_coupon);
+          }       
+          else if(data.used_coupon){
+            $("#applied_coupon").text(data.used_coupon);
+          }
+          else if(data.no_coupon){
+            $("#applied_coupon").text(data.no_coupon);
+          }
+          else if(data.minimum_coupon){
+            $("#applied_coupon").text(data.minimum_coupon);
+          }
+          else if(data.applied_coupon) {
+            $("#applied_coupon").text(data.applied_coupon);
+            $("#discount_box").show();
+            $("#discount").text("-Rs "+data.discount);
+            $("#grand_total").text("Rs "+ data.grand_total);
+            $("#apply_coupon").hide();
+            $("#appliedcoupons").show();
+            $("#appliedcoupons").text(data.coupon_code);
+            $("#remove_coupon").show();
+          }
+   
+      }
+  });
+  });
+</script>
 {% endblock %}

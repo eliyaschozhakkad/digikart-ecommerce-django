@@ -12,5 +12,5 @@ class VariationForm(forms.ModelForm):
         
         self.fields['variation_value'].widget.attrs['placeholder']='Enter Variation Value'
         for field in self.fields:
-            self.fields[field].widget.attrs['class']='form-control col-6' 
+            self.fields[field].widget.attrs['class']='form-control col-lg-12 col-md-12' 
         

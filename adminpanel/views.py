@@ -8,14 +8,14 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.cache import never_cache
 from accounts.models import Account
 from django.contrib import messages
-from .forms import CategoryForm, ProductForm,OfferForm,EditOfferForm
+from .forms import CategoryForm, ProductForm,OfferForm,EditOfferForm,Couponform
 from store.forms import VariationForm
 from django.utils.text import slugify
 from django.db.models import Q 
 from django.core.paginator import Paginator
 from orders.models import Order
 from orders.forms import OrderFormAdmin
-from offers.models import Offer
+from offers.models import Offer,Coupon
 from django.http import JsonResponse
 
 
@@ -466,3 +466,67 @@ def add_offer(request):
         offerform = OfferForm()
         context = {'offerform': offerform}
         return render(request, "admin/addoffer.html", context)
+
+@login_required()
+@user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
+def admin_coupon(request):
+    if request.method=="POST":
+        keyword=request.POST['keyword']
+        coupon=Coupon.objects.filter(Q(coupon_name__icontains=keyword)|
+        Q(coupon_code__icontains=keyword)|Q(coupon_discount__icontains=keyword)).order_by('id')
+    else:
+        coupon=Coupon.objects.filter().order_by('id')
+
+    paginator=Paginator(coupon,10)
+    page=request.GET.get('page')
+    paged_coupon=paginator.get_page(page)
+    context={
+        'coupons':paged_coupon,
+    }
+    
+    return render(request, 'admin/admin_coupon.html',context)
+
+@login_required()
+@user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
+def add_coupon(request):
+    couponform=Couponform()
+    context={'couponform':couponform}
+    if request.method == 'POST':
+        form = Couponform(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.info(request, "The Coupon is added")
+            return redirect("admin_coupon")
+        if form.errors:
+            for field,errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
+            
+            
+    return render(request,"admin/addcoupon.html",context)
+
+
+@login_required()
+@user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
+def coupon_edit(request,id):
+    editcoupon = Coupon.objects.get(pk=id)
+    couponform = Couponform(instance=editcoupon)
+    if request.method == 'POST':
+        form = Couponform(request.POST,instance=editcoupon)
+        if form.is_valid():
+            form.save()
+            messages.info(request, "The Coupon is edited")
+            return redirect('admin_coupon')
+        if form.errors:
+            for  field,errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
+            
+    context = {'couponform': couponform}
+    return render(request, "admin/editcoupon.html", context)
+
+def coupon_delete(request,id):
+    deletecoupon=Coupon.objects.get(pk=id)
+    deletecoupon.delete()
+    messages.info(request, "The offer is deleted")
+    return redirect("admin_coupon")

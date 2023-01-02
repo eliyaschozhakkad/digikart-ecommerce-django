@@ -80,13 +80,13 @@ ADD_TYPE = (
 
 class UserAddress(models.Model):
     user=models.ForeignKey(Account,on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    address_line_1=models.CharField(blank=True,max_length=100)
+    first_name = models.CharField(max_length=100,blank=True)
+    last_name = models.CharField(max_length=100,blank=True)
+    address_line_1=models.CharField(max_length=100,blank=True)
     address_line_2=models.CharField(blank=True,max_length=100)
     
-    city=models.CharField(blank=True,max_length=20)
-    state=models.CharField(blank=True,max_length=20)
+    city=models.CharField(max_length=20,blank=True)
+    state=models.CharField(max_length=20,blank=True)
     pincode=models.IntegerField(blank=True)
     email = models.EmailField(max_length=100,blank=True)
     phone_number = models.CharField(max_length=50,blank=True)
@@ -105,14 +105,7 @@ class UserAddress(models.Model):
         super().save(*args, **kwargs)
 
        
-    # class Meta:
-    #     constraints = [
-    #         models.UniqueConstraint(
-    #             fields=['user'],
-    #             condition=Q(default=True),
-    #             name='unique_primary_per_customer'
-    #         )
-    #     ]
+   
 
 
 

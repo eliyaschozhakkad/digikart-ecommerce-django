@@ -15,11 +15,12 @@ class Offer(models.Model):
         return self.offer_name
 
 class Coupon(models.Model):
-    coupon_name=models.CharField(max_length=15,null=True)
-    coupon_code=models.CharField(max_length=10,null=True)
-    minimum_amount=models.IntegerField(null=True)
-    coupon_discount=models.IntegerField(null=True)
+    coupon_name=models.CharField(max_length=15,unique=True)
+    coupon_code=models.CharField(max_length=10,unique=True)
+    minimum_amount=models.IntegerField()
+    coupon_discount=models.IntegerField()
     user=models.ForeignKey(Account,on_delete=models.CASCADE,null=True,blank=True)
+    is_valid=models.BooleanField(default=True)
     is_expired=models.BooleanField(default=False)
 
     def __str__(self):

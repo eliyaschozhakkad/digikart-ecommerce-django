@@ -31,9 +31,6 @@ def payments_paypal(request,total=0):
     order_number=body['orderID']
     order=Order.objects.get(user=request.user,is_ordered=False,order_number=body['orderID'])
 
-    payment1=Payment.objects.get(order_number=body['orderID'],payment_method="Razorpay")
-    payment1.delete()
-
     #Store transaction details in payment table
     payment=Payment(
         user=request.user,
@@ -79,6 +76,17 @@ def payments_paypal(request,total=0):
     #Clear Cart Items
     CartItem.objects.filter(user=order.user).delete()
 
+    grand_total=0
+    coupon=None
+    couponcode=request.session['appliedcode']
+       
+    couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+    if couponexists:
+        coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+        grand_total=grand_total-coupon.coupon_discount
+        coupon.is_valid=False
+        coupon.save()
+
     #Order Confirmation Mail
 
     
@@ -91,6 +99,8 @@ def payments_paypal(request,total=0):
     send_email=EmailMessage(mail_subject,message,to=[to_email])
     send_email.send()
 
+    
+
     #Send order number and transaction id  back to sendData method via JsonResponse
     data={
         'order_number':order.order_number,
@@ -98,7 +108,88 @@ def payments_paypal(request,total=0):
     }
     return JsonResponse(data)
     
+def payments_razorpay_create(request):
+    current_user = request.user
+    cart_items = CartItem.objects.filter(user=current_user)
+    current_site = get_current_site(request)
+    site=str(current_site)
 
+    total=0
+    quantity=0
+    grand_total=0
+    tax=0
+    for cart_item in cart_items:
+
+        if not cart_item.product.discount_price:
+                if True:
+                    total+= (cart_item.product.price*cart_item.quantity)
+                    quantity += cart_item.quantity
+
+               
+                
+                tax=(18*total)/100
+                grand_total=total+tax
+            
+        else:
+                if True:
+                    total+= (cart_item.product.discount_price*cart_item.quantity)
+                    quantity += cart_item.quantity
+
+            
+                    
+                tax=(18*total)/100
+                grand_total=total+tax
+    
+    #coupon=None
+        couponcode=request.session['appliedcode']
+        
+        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        if couponexists:
+            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            grand_total=grand_total-coupon.coupon_discount
+            
+    
+    
+
+    
+    order_number = request.session['order_number']
+    order = Order.objects.get(user=current_user, is_ordered=False,order_number = order_number)
+    
+    currency="INR"
+        
+    razorpay_cient=razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+    response_payment=razorpay_cient.order.create({"amount":int(grand_total)*100,"currency":currency,"payment_capture": "1"})
+    razorpay_order_id = response_payment['id']
+    order_status=response_payment['status']
+    #**************************
+    print(response_payment)
+    print(razorpay_order_id)
+    print(order_status)
+        
+    if order_status=="created":
+        payment=Payment(
+            user=current_user,
+            order_id=razorpay_order_id,
+            order_number=order_number,
+            payment_method="Razorpay",
+            status='Pending',
+            amount_paid=grand_total)
+        payment.save()
+
+    context={
+            'order':order,
+            'cart_items':cart_items,
+            'total':total,
+            'tax':tax,
+            'grand_total':int(grand_total),
+            'razorpay_merchant_key':settings.RAZOR_KEY_ID,
+            'razorpay_order_id':razorpay_order_id,
+            "callback_url": "http://" + site +"/orders/payments_razorpay/",
+            
+                
+            }
+
+    return render(request, 'orders/payment_razorpay.html', context)
     
 
 
@@ -106,6 +197,9 @@ def payments_paypal(request,total=0):
 
 @csrf_exempt
 def payments_razorpay(request,total=0):
+    
+    
+
     if request.method == "POST":
         try:
             response=request.POST
@@ -123,12 +217,14 @@ def payments_razorpay(request,total=0):
             status=client.utility.verify_payment_signature(params_dict)
             print("status:",status)
             if status:
+                #PAyment success
                 try:
                     transaction=Payment.objects.get(order_id=response['razorpay_order_id'])
                     transaction.status="Completed Successfully"
                     transaction.payment_id=response['razorpay_payment_id']
-                    transaction.payment_method="Razorpay"
+                    
                     transaction.save()
+                    
 
                     #GET Order Number
                     order_number=transaction.order_number
@@ -161,26 +257,26 @@ def payments_razorpay(request,total=0):
                         order_product.save()
 
                     CartItem.objects.filter(user=order.user).delete()
+                    
 
                     return redirect('payment_success')
                 except:
-                   
-                    transaction=Payment.objects.get(order_id=response['razorpay_order_id'])
-                    transaction.status="Failed"
-                    transaction.payment_id=response['razorpay_payment_id']
-                    transaction.payment_method="Razorpay"
-                    return redirect('payment_fail')
-
-
-            else:
+                    pass
                 
-                transaction=Payment.objects.get(order_id=response['razorpay_order_id'])
-                transaction.status="Failed"
-                transaction.payment_id=response['razorpay_payment_id']
-                transaction.payment_method="Razorpay"
-                return redirect('payment_fail')
+                
+
+
+        
         except:
-            return HttpResponseBadRequest()
+            #PAyment fail
+            razorpay_orderid=json.loads(request.POST.get("error[metadata]")).get("order_id")
+            payment_id = json.loads(request.POST.get("error[metadata]")).get("payment_id")
+            transaction=Payment.objects.get(order_id=razorpay_orderid)
+            transaction.payment_id=payment_id
+            transaction.status="Failed"
+            #transaction.payment_method="Razorpay"
+            transaction.save()
+            return redirect('payment_fail')
     else:
         return HttpResponseBadRequest()
 
@@ -195,16 +291,9 @@ def place_order(request,total=0,quantity=0):
     if cart_count<=0:
         return redirect('store')
 
-    couponexists=Coupon.objects.filter(user=request.user,is_expired=False).exists()
-
-    if couponexists:
-        if couponexists:
-            coupon=Coupon.objects.get(user=request.user)
             
-
-
-
-
+    total=0
+    quantity=0
     grand_total=0
     tax=0
     for cart_item in cart_items:
@@ -213,8 +302,7 @@ def place_order(request,total=0,quantity=0):
                     total+= (cart_item.product.price*cart_item.quantity)
                     quantity += cart_item.quantity
 
-                if couponexists:
-                    total=total-coupon.coupon_discount
+               
                 
                 tax=(18*total)/100
                 grand_total=total+tax
@@ -224,8 +312,7 @@ def place_order(request,total=0,quantity=0):
                     total+= (cart_item.product.discount_price*cart_item.quantity)
                     quantity += cart_item.quantity
 
-                if couponexists:
-                    total=total-coupon.coupon_discount
+            
                     
                 tax=(18*total)/100
                 grand_total=total+tax
@@ -274,70 +361,35 @@ def place_order(request,total=0,quantity=0):
         data.order_number=order_number
         data.save()
 
+        request.session['order_number']=order_number
         order=Order.objects.get(user=current_user,is_ordered=False,order_number=order_number)
-        currency="INR"
-        razorpay_client=razorpay.Client(auth=(settings.RAZOR_KEY_ID,settings.RAZOR_KEY_SECRET))
-
-        response_payment=razorpay_client.order.create({"amount":int(grand_total)*100,"currency":currency})
-        razorpay_order_id = response_payment['id']
-        order_status=response_payment['status']
-        # print(response_payment)
-        # print(razorpay_order_id)
-        # print(order_status)
-            
-        if order_status=="created":
-            payment=Payment(
-                user=current_user,
-                order_id=razorpay_order_id,
-                order_number=order_number,
-                payment_method="Razorpay",
-                status='Failed',
-                amount_paid=grand_total)
-            payment.save()
-            
+        coupon=None
+        couponcode=request.session['appliedcode']
+        
+        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        if couponexists:
+            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            grand_total=grand_total-coupon.coupon_discount
         context={
             'order':order,
             'cart_items':cart_items,
             'total':total,
             'tax':tax,
-            'grand_total':int(grand_total),
-            'razorpay_merchant_key':settings.RAZOR_KEY_ID,
-            'razorpay_order_id':razorpay_order_id,
-            'order_status':order_status,
-                
+            'grand_total':int(grand_total),  
+            'coupon':coupon    
             }
-        request.session['order_number']=order_number
-
-
-
-
-
+        
 
         return render(request,'orders/payments.html',context)
             
-        # print(f"order_no:{request.session['order_number']}")
-           
-            
-        # else:
-        #     return redirect('checkout')
-
-    else:
-        order_number=request.session['order_number']
-        transaction=Payment.objects.get(order_number=order_number)
-
-        transaction.status="Failed"
-        transaction.payment_method="Razorpay"
-        cart_items=CartItem.objects.get(user=current_user)
-        cart_items.delete()
-        return redirect('payment_fail')
-
-
 
 def payment_fail(request):
     return render(request,'orders/payment_fail.html')
 
 def payment_success(request):
     order_number=request.session['order_number']
+    
+    
     transaction_id=Payment.objects.get(order_number=order_number)
 
     try:
@@ -348,15 +400,31 @@ def payment_success(request):
         order.save()
 
         ordered_products=OrderProduct.objects.filter(order_id=order.id)
+
+
         tax=0
         total=0
         grand_total=0
-
+    
         for item in ordered_products:
-            total+=(item.product_price*item.quantity)
+            if not item.product.discount_price:
+                total+=(item.product_price*item.quantity)
+            else:
+                total+=(item.product.discount_price*item.quantity)
+
 
         tax=(18*total)/100
         grand_total=total+tax
+
+        #coupon=None
+        couponcode=request.session['appliedcode']
+        
+        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        if couponexists:
+            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            grand_total=grand_total-coupon.coupon_discount
+            coupon.is_valid=False
+            coupon.save()
 
         #Order Confirmation Mail
 
@@ -399,8 +467,23 @@ def order_complete(request):
 
         subtotal=0
 
-        for i in ordered_products:
-            subtotal+=i.product_price+i.quantity
+        for item in ordered_products:
+            if not item.product.discount_price:
+                subtotal+=item.product_price+item.quantity
+            else:
+                subtotal+=item.product.discount_price+item.quantity
+        
+        #coupon=None
+        couponcode=request.session['appliedcode']
+        
+        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        if couponexists:
+            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            subtotal=subtotal-coupon.coupon_discount
+            coupon.is_valid=False
+            coupon.save()
+
+
 
         payment=Payment.objects.get(payment_id=transID)
 
@@ -419,7 +502,7 @@ def order_complete(request):
 
 
 
-def cod(request):
+def cod(request,total=0,quantity=0):
     order_number=request.session['order_number']
     
 
@@ -433,8 +516,7 @@ def cod(request):
         order.status='Order Accepted'
         order.save()
 
-        payment1=Payment.objects.get(order_number=order_number,payment_method="Razorpay")
-        payment1.delete()
+       
 
         payment=Payment(
             user=request.user,
@@ -443,6 +525,7 @@ def cod(request):
             )
         payment.save()
         order.payment=payment
+        order.status='Accepted'
         order.save()
 
 
@@ -474,16 +557,32 @@ def cod(request):
         CartItem.objects.filter(user=order.user).delete()
 
 
-        ordered_products=OrderProduct.objects.filter(order_id=order.id)
+        ordered_products=OrderProduct.objects.filter(order_id=order.id)\
+            
         tax=0
         total=0
         grand_total=0
 
         for item in ordered_products:
-            total+=(item.product_price*item.quantity)
+
+            if not item.product.discount_price:
+                total+=(item.product_price*item.quantity)
+            else:
+                total+=(item.product.discount_price*item.quantity)
+
 
         tax=(18*total)/100
         grand_total=total+tax
+
+        #coupon=None
+        couponcode=request.session['appliedcode']
+        
+        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        if couponexists:
+            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            grand_total=grand_total-coupon.coupon_discount
+            coupon.is_valid=False
+            coupon.save()
 
         
 

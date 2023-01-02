@@ -2,7 +2,8 @@ from django import forms
 from category.models import Category
 from store.models import Product
 from django.core.exceptions import ValidationError
-from offers.models import Offer
+from offers.models import Offer,Coupon
+from django.core.validators import MinValueValidator
 
 
 
@@ -21,7 +22,7 @@ class CategoryForm(forms.ModelForm):
         
         
         for field in self.fields:
-            self.fields[field].widget.attrs['class']='form-control col-6' 
+            self.fields[field].widget.attrs['class']='form-control col-lg-12 col-md-12' 
 
     def clean(self):
         cleaned_data=super(CategoryForm,self).clean()
@@ -54,7 +55,7 @@ class ProductForm(forms.ModelForm):
         
         
         for field in self.fields:
-            self.fields[field].widget.attrs['class']='form-control' 
+            self.fields[field].widget.attrs['class']='form-control col-lg-12 col-md-12' 
 
         self.fields['is_available'].widget.attrs['class']='form-check-input ml-2 mt-1'
         self.fields['featured'].widget.attrs['class']='form-check-input ml-2 mt-1'
@@ -85,7 +86,7 @@ class OfferForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for myField in self.fields:
-            self.fields[myField].widget.attrs['class'] = 'form-control'
+            self.fields[myField].widget.attrs['class'] = 'form-control col-lg-12 col-md-12'
 
 class EditOfferForm(forms.ModelForm):
 
@@ -96,7 +97,33 @@ class EditOfferForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for myField in self.fields:
-            self.fields[myField].widget.attrs['class'] = 'form-control'
+            self.fields[myField].widget.attrs['class'] = 'form-control col-lg-12 col-md-12'
 
         
+
+class Couponform(forms.ModelForm):
+    class Meta:
+        model=Coupon
+        fields=['coupon_name','coupon_code','minimum_amount','coupon_discount','is_valid','is_expired']
+
+    def __init__(self,*args,**kwargs):
+            super(Couponform,self).__init__(*args,**kwargs)
+            
+            
+            for field in self.fields:
+                self.fields[field].widget.attrs['class']='form-control col-lg-12 col-md-12'     
+
+            self.fields['is_valid'].widget.attrs['class']='form-check-input ml-2 mt-1'
+            self.fields['is_expired'].widget.attrs['class']='form-check-input ml-2 mt-1'
+    
+    def clean(self):
+        cleaned_data=super(Couponform,self).clean()
         
+        minimum_amount=cleaned_data.get('minimum_amount') 
+        coupon_discount=cleaned_data.get('coupon_discount')
+          
+        if minimum_amount < 0:
+            raise forms.ValidationError("The minimum amount cannot be negative")
+        if coupon_discount < 0:
+            raise forms.ValidationError("The coupon discount cannot be negative")
+    

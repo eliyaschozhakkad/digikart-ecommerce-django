@@ -46,11 +46,11 @@ $(document).ready(function() {
 // jquery end
 </script>
 
-{% comment %} Sweet Alert CDN {% endcomment %}
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
 
-<!-- paypal script -->
-<script src="https://www.paypal.com/sdk/js?client-id=AbO6tt8Ug15VlOMv2cbyrfkd997AWNGDFNYXaT7QWZnAfXkqHjbpCoRzgWFQ7FwDE2SM3v75Q8taOT_3"></script>
+
+
+
 
 </head>
 
@@ -201,12 +201,12 @@ $(document).ready(function() {
         <div class="card">
           <div class="card-body">
             {% for message in messages %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
     {% endfor %}
 
             {% if not coupon %}
@@ -214,10 +214,10 @@ $(document).ready(function() {
             <form action="{% url 'apply_coupon' %}" method="POST">
               {% csrf_token %}
             <div class="input-group mb-3"> 
-              <input type="text" class="form-control" placeholder="Enter Coupon" aria-label="coupon" name=coupon>
-              <button class="btn btn-outline-primary" type="submit" id="button-addon2">Apply</button>
+                <input type="text" class="form-control" placeholder="Enter Coupon" aria-label="coupon" name=coupon>
+                <button class="btn btn-outline-primary" type="submit" id="button-addon2">Apply</button>
             </div>
-          </form>
+            </form>
             
             
             {% else %}
@@ -268,9 +268,13 @@ $(document).ready(function() {
 {% endblock %}
 
 {% include 'includes/footer.html' %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
 
 
+
+
+
+</body>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   
   function deletecart(productid,cartid){
@@ -293,5 +297,3 @@ $(document).ready(function() {
   }
 
 </script>
-
-</body>

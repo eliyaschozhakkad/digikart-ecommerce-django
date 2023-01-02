@@ -27,9 +27,52 @@
                
                 <div class="row"> 
                  <div class="col-md-12">
-                    <form action="" method="POST" enctype="multipart/form-data">
+                    <form method="POST" id="address_form">
                         {% csrf_token %}
-                        {{address_form.as_p}}
+                        
+                        {{address_form.first_name.label}}
+                        {{address_form.first_name}}
+                        <div class="warning-input text-danger" id="fname_error_message"></div>
+
+                        {{address_form.last_name.label}}
+                        {{address_form.last_name}}
+                        <div class="warning-input text-danger" id="lname_error_message"></div>
+
+                        {{address_form.address_line_1.label}}
+                        {{address_form.address_line_1}}
+                        <div class="warning-input text-danger" id="address1_error_message"></div>
+
+                        {{address_form.address_line_2.label}}
+                        {{address_form.address_line_2}}
+                        <div class="warning-input text-danger" id="address2_error_message"></div>
+
+                        {{address_form.city.label}}
+                        {{address_form.city}}
+                        <div class="warning-input text-danger" id="city_error_message"></div>
+
+                        {{address_form.state.label}}
+                        {{address_form.state}}
+                        <div class="warning-input text-danger" id="state_error_message"></div>
+
+                        {{address_form.pincode.label}}
+                        {{address_form.pincode}}
+                        <div class="warning-input text-danger" id="pincode_error_message"></div>
+
+                        {{address_form.email.label}}
+                        {{address_form.email}}
+                        <div class="warning-input text-danger" id="email_error_message"></div>
+
+                        {{address_form.phone_number.label}}
+                        {{address_form.phone_number}}
+                        <div class="warning-input text-danger" id="mobile_error_message"></div>
+
+                        {{address_form.add_type.label}}
+                        {{address_form.add_type}}
+                        <div class="warning-input text-danger" id="add_type_error_message"></div>
+
+                        {{address_form.default.label}}
+                        {{address_form.default}}
+                        <div class="warning-input text-danger" id="default_error_message"></div>
                         
 
 
@@ -49,7 +92,240 @@
     
     
     </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" ></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+<script type="text/javascript">
+
+   
+    $(function() {
+
+        $("#fname_error_message").hide();
+        $("#lname_error_message").hide();
+        $("#email_error_message").hide();
+        $("#mobile_error_message").hide();
+       
 
 
+       var error_fname = false;
+       var error_lname = false;
+       var error_address_1=false;
+       var error_city=false;
+       var error_state=false;
+       var error_pincode=false;
+       var error_email = false;
+       var error_mobile = false;
+       
 
+       $("#id_first_name").focusout(function(){
+          check_fname();
+       });
+       $("#id_last_name").focusout(function() {
+          check_lname();
+       });
+       $("#id_address_line_1").focusout(function() {
+        check_address1();
+       });
+       $("#id_city").focusout(function() {
+        check_city();
+       });
+       $("#id_state").focusout(function() {
+        check_state();
+       });
+       $("#id_pincode").focusout(function() {
+        check_pincode();
+       });
+       
+       
+       $("#id_email").focusout(function() {
+          check_email();
+       });
+       $("#id_phone_number").focusout(function() {
+          check_mobile();
+       });
+       
+
+
+       
+
+       function check_fname() {
+          var pattern = /^[a-zA-Z]*$/;
+          var fname = $("#id_first_name").val();
+          if (pattern.test(fname) && fname !== '') {
+             $("#fname_error_message").hide();
+             $("#id_first_name").css("border-bottom","2px solid #34F458");
+          } else {
+           
+             $("#fname_error_message").html("Please enter your first name.");
+             $("#fname_error_message").show();
+             $("#id_first_name").css("border-bottom","2px solid #F90A0A");
+             error_fname = true;
+          }
+       }
+
+       function check_lname() {
+        var pattern = /^[a-zA-Z]*$/;
+        var lname = $("#id_last_name").val();
+        if (pattern.test(lname) && lname !== '') {
+           $("#lname_error_message").hide();
+           $("#id_last_name").css("border-bottom","2px solid #34F458");
+        } else {
+          
+           $("#lname_error_message").html("Please enter your last name.");
+           $("#lname_error_message").show();
+           $("#id_last_name").css("border-bottom","2px solid #F90A0A");
+           error_lname = true;
+        }
+     }
+
+       function check_mobile() {
+          var pattern = /^[1-9][0-9]{9}$/;
+          var mobile = $("#id_phone_number").val();
+          if (pattern.test(mobile) && mobile !== '') {
+             $("#mobile_error_message").hide();
+             $("#id_phone_number").css("border-bottom","2px solid #34F458");
+          } else if(mobile == ''){
+            $("#mobile_error_message").html("Please enter valid phone number.");
+             $("#mobile_error_message").show();
+             $("#id_phone_number").css("border-bottom","2px solid #F90A0A");
+             error_mobile = true;
+          }else {
+             $("#mobile_error_message").html("Please enter a 10-digit phone number.");
+             $("#mobile_error_message").show();
+             $("#id_phone_number").css("border-bottom","2px solid #F90A0A");
+             error_mobile = true;
+          }
+       }
+
+
+       function check_address1() {
+        
+        var address_1 = $("#id_address_line_1").val();
+        if ( address_1 !== '') {
+           $("#address1_error_message").hide();
+           $("#id_address_line_1").css("border-bottom","2px solid #34F458");
+        } 
+        
+        else {
+          
+           $("#address1_error_message").html("Please enter Address.");
+           $("#address1_error_message").show();
+           $("#id_address_line_1").css("border-bottom","2px solid #F90A0A");
+           error_address_1 = true;
+        }
+        }
+
+        function check_city() {
+        
+            var city = $("#id_city").val();
+            if ( city !== '') {
+               $("#city_error_message").hide();
+               $("#id_city").css("border-bottom","2px solid #34F458");
+            } else {
+              
+               $("#city_error_message").html("Please enter City.");
+               $("#city_error_message").show();
+               $("#id_city").css("border-bottom","2px solid #F90A0A");
+               error_city = true;
+            }
+            }
+
+        function check_state() {
+    
+            var state = $("#id_state").val();
+            if ( state !== '') {
+                $("#state_error_message").hide();
+                $("#id_state").css("border-bottom","2px solid #34F458");
+                 
+            } else {
+                
+                $("#state_error_message").html("Please enter State");
+                $("#state_error_message").show();
+                $("#id_state").css("border-bottom","2px solid #F90A0A");
+                error_state = true;
+            }
+            }
+        function check_pincode() {
+            var pattern = /^[1-9][0-9]{5}$/;
+            var pincode = $("#id_pincode").val();
+            if ( pattern.test(pincode) && pincode !== '') {
+                $("#pincode_error_message").hide();
+                $("#id_pincode").css("border-bottom","2px solid #34F458");
+               
+                
+            } 
+            else if (pincode == '' ) {
+               $("#pincode_error_message").html("Please enter valid pincode");
+                $("#pincode_error_message").show();
+                $("#id_pincode").css("border-bottom","2px solid #F90A0A");
+               error_pincode = true;
+           }
+            
+            else {
+                
+                $("#pincode_error_message").html("Please enter valid 6-digit pincode");
+                $("#pincode_error_message").show();
+                $("#id_pincode").css("border-bottom","2px solid #F90A0A");
+                error_pincode = true;
+            }
+            }
+       function check_email() {
+          var pattern = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+          var email = $("#id_email").val();
+          if (pattern.test(email) && email !== '') {
+             $("#email_error_message").hide();
+             $("#id_email").css("border-bottom","2px solid #34F458");
+          } else if(email == ''){
+             $("#email_error_message").html("Please enter your email address");
+             $("#email_error_message").show();
+             $("#id_email").css("border-bottom","2px solid #F90A0A");
+             error_email = true;
+          }
+          else {
+             $("#email_error_message").html("Please enter a valid email address");
+             $("#email_error_message").show();
+             $("#id_email").css("border-bottom","2px solid #F90A0A");
+             error_email = true;
+          }
+       }
+
+       $("#address_form").submit(function() {
+         error_fname = false;
+         error_lname = false;
+         error_address_1=false;
+         error_city=false;
+         error_state=false;
+         error_pincode=false;
+         error_email = false;
+         error_mobile = false;
+
+          check_fname();
+          check_lname();
+          check_address1();
+          check_city();
+          check_state();
+          check_pincode();
+          check_email();
+          check_mobile();
+
+          if (error_fname === false && error_lname === false && error_address_1 === false && error_city === false && error_state === false && error_pincode === false && error_email === false && error_mobile === false) {
+             
+             
+            return true;
+          } else {
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please Fill the form Correctly!',
+                
+              })
+             return false;
+          }
+
+
+       });
+    });
+ </script>
 {% endblock %}

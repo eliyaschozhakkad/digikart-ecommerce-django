@@ -23,6 +23,8 @@ def alert(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home(request):
+
+    
     
     products = Product.objects.all().filter(is_available=True,featured=True).order_by('id')
     offers=Offer.objects.all().order_by('id')
@@ -33,7 +35,7 @@ def home(request):
     }
     return render(request, "index.html", context)
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def store(request, category_slug=None):
 
     categories = None
@@ -61,7 +63,7 @@ def store(request, category_slug=None):
 
     return render(request, "store/store.html", context)
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def product_detail(request, category_slug, product_slug):
 
     try:

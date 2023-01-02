@@ -102,6 +102,12 @@
               <dt>Tax:</dt>
               <dd class="text-right">Rs {{tax}}</dd>
             </dl>
+            {% if coupon  %}
+            <dl class="dlist-align">
+              <dt class="text-danger font-weight-bold">Coupon:</dt>
+              <dd class="text-right text-danger font-weight-bold">-Rs {{coupon.coupon_discount}}</dd>
+            </dl>
+            {% endif %}
             <dl class="dlist-align">
               <dt>Grand Total:</dt>
               <dd class="text-right text-dark b"><strong>Rs {{grand_total}}</strong></dd>
@@ -113,27 +119,11 @@
              <a href="{% url 'cod' %}" class="btn btn-dark btn-block mb-3">
               Cash On Delivery
             </a> 
+            <a href="{% url 'payments_razorpay_create' %}" class="btn btn-primary btn-block mb-3">
+              Pay with Razorpay
+            </a> 
             
-            <form action="{% url 'payments_razorpay' %}" method="POST">
-              
-                <script
-                src="https://checkout.razorpay.com/v1/checkout.js"
-                data-key="{{razorpay_merchant_key}}"
-                data-amount="{{ grand_total }}"
-                data-currency="INR"
-                data-order_id="{{ razorpay_order_id }}"
-                data-buttontext="Pay with RazorPay"
-                data-name="Product"
-                data-description="product"
-                data-image=""
-                data-prefill.name="{{ order.full_name }}"
-                data-prefill.email="{{user.email}}"
-                data-theme.color="#3399cc"
-              ></script>
-              <input type="hidden" custom="Hidden Element" name="hidden"> 
-             
-            </form>
-          
+            
 
             <div id="paypal-button-container">
 
@@ -159,12 +149,8 @@
 <script src="https://www.paypal.com/sdk/js?client-id=AbO6tt8Ug15VlOMv2cbyrfkd997AWNGDFNYXaT7QWZnAfXkqHjbpCoRzgWFQ7FwDE2SM3v75Q8taOT_3"></script>
 
 
-<!-- RAZOR PAY -->
 
-<script>
-  var element = document.querySelector('.razorpay-payment-button');
-  element.className += ' btn btn-primary btn-block lg mb-3';
-</script>
+
 
 <script>
   //Render teh Papypal button

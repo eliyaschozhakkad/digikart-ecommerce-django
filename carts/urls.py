@@ -9,6 +9,6 @@ urlpatterns = [
     path("checkout/", views.checkout, name="checkout"),
     path("adduser_address/", views.adduser_address, name="adduser_address"),
     path("apply_coupon/", views.apply_coupon, name="apply_coupon"),
-    path("remove_coupon/<int:id>/", views.remove_coupon, name="remove_coupon"),
+    path("remove_coupon/", views.remove_coupon, name="remove_coupon"),
     
 ]

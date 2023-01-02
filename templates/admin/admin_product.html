@@ -26,8 +26,8 @@
     <div class="row">
       {% include 'admin/adminincludes/admindashboard.html' %}
       <main class="col-md-9">
-        <div class="d-flex justify-content-between">
-          <a href="{% url 'add_product' %}"><button type="button" class="btn btn-success btn-sm">Add Product</button></a>
+        <div class="d-flex justify-content-between my-2">
+          <a href="{% url 'add_product' %}"><button type="button" class="btn btn-success btn-sm form-control">Add Product</button></a>
           <form action="" class="search" method="POST">
             {% csrf_token %}
             <div class="input-group w-100">
@@ -54,7 +54,7 @@
     </script>
             {% endfor %}
 
-        <table class="table">
+        <table class="table table-responsive">
           <thead>
             <tr>
               <th scope="col">#</th>

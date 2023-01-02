@@ -31,11 +31,13 @@
           <p>{{single_product.description}}</p>
 
           <hr />
+          
           <div class="row">
             <div class="item-option-select">
               <h6>Choose Color</h6>
               <select name="color" class="form-control" required style="width:110px;">
                 <option value="" disabled selected>Select</option>
+                
                 {% for i in single_product.variation_set.colors  %}
 				<option value="{{i.variation_value|lower}}">{{i.variation_value|capfirst}}</option>
         {% endfor %}
@@ -61,14 +63,11 @@
           {% if single_product.stock <= 0 %}
           <h5 class="text-danger">Out of stock</h5>
           {% else %}
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
+          <button type="submit" class="btn btn-primary">
             <span class="text">Add to Cart</span>
             <i class="fas fa-shopping-cart"></i>
-		</button>
-           {% endif %}
+		      </button>
+          {% endif %}
         </article>
         <!-- product-info-aside .// -->
       </form>
