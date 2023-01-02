@@ -364,11 +364,11 @@ def place_order(request,total=0,quantity=0):
         request.session['order_number']=order_number
         order=Order.objects.get(user=current_user,is_ordered=False,order_number=order_number)
         coupon=None
-        couponcode=request.session['appliedcode']
+        #couponcode=request.session['appliedcode']
         
-        couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user).exists()
+        couponexists=Coupon.objects.filter(is_valid=True,is_expired=False,user=request.user).exists()
         if couponexists:
-            coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False,user=request.user)
+            coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
             grand_total=grand_total-coupon.coupon_discount
         context={
             'order':order,

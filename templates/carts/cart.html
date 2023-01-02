@@ -200,33 +200,8 @@ $(document).ready(function() {
         
         <div class="card">
           <div class="card-body">
-            {% for message in messages %}
-          <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-    {% endfor %}
-
-            {% if not coupon %}
-            <p class="text-primary">Already Have a Coupon?</p>
-            <form action="{% url 'apply_coupon' %}" method="POST">
-              {% csrf_token %}
-            <div class="input-group mb-3"> 
-                <input type="text" class="form-control" placeholder="Enter Coupon" aria-label="coupon" name=coupon>
-                <button class="btn btn-outline-primary" type="submit" id="button-addon2">Apply</button>
-            </div>
-            </form>
-            
-            
-            {% else %}
-            <p class="btn btn-primary" type="button" id="">{{coupon.coupon_name}}</p>
-            <a class="text-primary" href="{% url 'remove_coupon' coupon.id %}">Remove Coupon</a>
-                       
-            
-            {% endif %}
-            
+           
+    
             <dl class="dlist-align">
               <dt>Total price:</dt>
               <dd class="text-right">Rs  {{total}}</dd>
