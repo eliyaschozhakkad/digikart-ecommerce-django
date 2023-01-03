@@ -1,5 +1,5 @@
 from django import forms
-from .models import Order
+from .models import Order,Sales
 
 class OrderForm(forms.ModelForm):
     class Meta:
@@ -22,4 +22,20 @@ class OrderFormAdmin(forms.ModelForm):
         for field in self.fields:
             self.fields[field].widget.attrs['class']='form-control col-6'
             self.fields[field].widget.attrs['readonly'] = True 
+        
 
+class SalesForm(forms.ModelForm):
+    class Meta:
+        model=Sales
+
+        fields=['start_date','end_date']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+    def __init__(self,*args,**kwargs):
+        super(SalesForm,self).__init__(*args,**kwargs)
+
+        for field in self.fields:
+            self.fields[field].widget.attrs['class']='form-control col-6'
+            

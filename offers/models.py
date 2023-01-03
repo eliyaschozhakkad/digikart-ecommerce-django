@@ -25,6 +25,14 @@ class Coupon(models.Model):
 
     def __str__(self):
         return self.coupon_name
+
+class UsedCoupons(models.Model):
+    coupon_code = models.CharField( max_length=50)
+    email=models.EmailField(max_length=50,null=True,blank=True)
+    is_used=models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.coupon_code
     
     
     

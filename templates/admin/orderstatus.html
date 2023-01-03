@@ -12,6 +12,75 @@
       <form action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
           {{orderform.as_p}}
+          {% comment %} <p>
+            <label for="id_first_name">First name:</label>
+            {{orderform.first_name}} 
+          </p>
+          <p>
+            <label for="id_last_name">Last name:</label>
+            {{orderform.last_name}}   
+          </p>
+          <p>
+            <label for="id_email">Email:</label>
+            {{orderform.email}} 
+          </p>
+          <p>
+            <label for="id_phone">Phone:</label>
+            {{orderform.phone}} 
+          </p>
+          <p>
+            <label for="id_address_line_1">Address line 1:</label>
+            {{orderform.address_line_1}} 
+          </p>
+          <p>
+            <label for="id_address_line_2">Address line 2:</label>
+            {{orderform.address_line_2}} 
+          </p>
+          <p>
+            <label for="id_city">City:</label>
+            {{orderform.city}}  
+          </p>
+          <p>
+            <label for="id_state">State:</label>
+            {{orderform.state}}   
+          </p>
+          <p>
+            {{orderform.pincode.label}} 
+            {{orderform.pincode}}  
+          </p>
+          <p>
+            <label for="id_status">Status:</label>
+            <select name="status" class="form-control col-6" readonly id="id_status">
+          
+        
+          <option value="Accepted" selected>Accepted</option>
+
+          {% if order.status == "Accepted"  %}
+          <option value="Accepted" selected>Accepted</option>
+          <option value="Ready for Shipping">Ready for shipping</option>
+        </select>
+          {% endif %}
+          {% if order.status == "Ready for shipping"  %}
+          <option value="Ready for Shipping">Shipped</option>
+          {% endif %}
+          {% if order.status == "Shipped"  %}
+          <option value="Ready for Shipping">Out for Delivery</option>
+          {% endif %}
+          {% if order.status == "Out for Delivery"  %}
+          <option value="Ready for Shipping">Delivered</option>
+          {% endif %}
+
+        
+        
+          
+        
+        </select>
+            
+            
+              
+            
+          </p> {% endcomment %}
+               
            
            
            

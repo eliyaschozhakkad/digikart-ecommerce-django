@@ -11,20 +11,61 @@
       <header class="mb-4"><h4 class="card-title">Add Product</h4></header>
 
 
-      <div id="alert-box"></div>
-
-      <div id="image-box">
-        <img src="" alt="" id="image" width="500px">
+      <div id="alert-box" class="alert alert-danger" style="display:none;">
+        <p id="error"></p>
       </div>
+
+      
 
       <form action="" method="POST" enctype="multipart/form-data" id="image-form" onsubmit="return false;">
         {% csrf_token %}
         <div class="form-row">
           <div class="col form-group" >
+            <p>
+              <label for="id_product_name">Product name:</label>
+              <input type="text" name="product_name" placeholder="Enter Product Name" class="form-control col-lg-12 col-md-12" id="id_product_name">  
+            </p>
+            <p>
+              <label for="id_price">Price:</label>
+              <input type="number" name="price" placeholder="Enter Price" class="form-control col-lg-12 col-md-12" id="id_price"> 
+            </p>
+            <p>
+              <label for="id_stock">Stock:</label>
+              <input type="number" name="stock" placeholder="Enter Stock" class="form-control col-lg-12 col-md-12" id="id_stock"> 
+            </p>           
+            <p>
+              <label for="id_category">Category:</label>
+              {{productform.category}}
+            </p> 
+            <p>
+              <label for="id_images">Images:</label>
+              <input type="file" name="images" accept="image/*" class="form-control col-lg-12 col-md-12" required id="id_images"> 
+            </p>
+            <div id="image-box">
+              <img src="" alt="" id="image" width="500px">
+            </div>
+
+
+
+            <p>
+              <label for="id_description">Description:</label>
+              <textarea name="description" cols="40" rows="10" maxlength="500" placeholder="Enter Description" class="form-control col-lg-12 col-md-12" id="id_description">
+            </textarea>  
+            </p>
+
+            <p>
+              <label for="id_is_available">Is available:</label>
+              <input type="checkbox" name="is_available" class="form-check-input ml-2 mt-1" id="id_is_available" checked> 
+            </p>   
+            <p>
+              <label for="id_featured">Featured:</label>
+              <input type="checkbox" name="featured" class="form-check-input ml-2 mt-1" id="id_featured"> 
+            </p>
+              
+          
             
+            {% comment %} {{productform.as_p}} {% endcomment %}
             
-            {{productform.as_p}}
-            <!-- {{productform.images}} -->
            
             
             <button class="btn btn-primary not-visible" id="confirm-btn">Confirm</button>
@@ -147,9 +188,12 @@ input.addEventListener('change', ()=>{
 
             window.location.href="/adminpanel/product"
           }
-          if (response.message==='notvalid'){
+          if (response.errors){
+            
+            $("#alert-box").show();
+            $("#error").html(response.errors);
+            
 
-            alertBox.innerHTML='<div class="alert alert-primary" role="alert">Error </div>'
             
           }
           

@@ -24,7 +24,7 @@ class Payment(models.Model):
 class Order(models.Model):
 
     STATUS=(
-    ('New','New'),
+    
     ('Accepted','Accepted'),
     ('Ready for Shipping' , 'Ready for shipping'),
     ('Shipped' , 'Shipped'),
@@ -76,5 +76,17 @@ class OrderProduct(models.Model):
     def __str__(self):
         return self.product.product_name
 
+
+class Sales(models.Model):
+
+    user=models.ForeignKey(Account,on_delete=models.SET_NULL,null=True)
+    payment=models.ForeignKey(Payment,on_delete=models.SET_NULL,null=True)
+    order=models.ForeignKey(Order,on_delete=models.SET_NULL,null=True)
+    start_date=models.DateField()
+    end_date=models.DateField()
+    
+
+    def __str__(self):
+        return self.order
 
 

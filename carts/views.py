@@ -7,7 +7,7 @@ from accounts.forms import UserAddressForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from offers.models import Coupon
+from offers.models import Coupon,UsedCoupons
 from django.http import JsonResponse
 # Create your views here.
 
@@ -287,7 +287,9 @@ def checkout(request,total=0,quantity=0,cart_items=None):
     
     discount=0
     coupon=None
-    if Coupon.objects.filter(user=request.user,is_valid=True,is_expired=False).exists():
+    usedcoupons=UsedCoupons.objects.filter(email=request.user.email,is_used=True)
+    if usedcoupons:
+        if Coupon.objects.filter(user=request.user,is_valid=True,is_expired=False).exists():
                 coupon=Coupon.objects.get(user=request.user,is_valid=True,is_expired=False)
                 if coupon.minimum_amount<grand_total:
                     discount=coupon.coupon_discount
@@ -375,20 +377,23 @@ def apply_coupon(request,total=0,quantity=0,cart_items=None):
         couponcode=request.POST.get('key')
         print(couponcode)
         
-       
+        
         couponexists=Coupon.objects.filter(coupon_code__iexact=couponcode).exists()
+        usedcoupons=UsedCoupons.objects.filter(coupon_code__iexact=couponcode,is_used=True,email=request.user.email).exists()
         if couponexists:
             if Coupon.objects.filter(coupon_code__iexact=couponcode,is_expired=True).exists():
                 return JsonResponse({'expired_coupon':'Coupon is expired'})
-            elif Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=False,user=request.user).exists():
+            elif usedcoupons:
                 return JsonResponse({'used_coupon':'Coupon is already used'})
             elif Coupon.objects.filter(coupon_code__iexact=couponcode,is_valid=True,is_expired=False).exists():
                 coupon=Coupon.objects.get(coupon_code__iexact=couponcode)
                 if coupon.minimum_amount>grand_total:
                     return JsonResponse({'minimum_coupon':'Minium amount not satisfied'})
-                else:
+                else :
                     coupon.user=request.user
                     coupon.save()
+                    usedcoupons=UsedCoupons.objects.create(coupon_code=couponcode,email=request.user.email,is_used=True)
+                    usedcoupons.save()
                     discount=coupon.coupon_discount
                     coupon_code=coupon.coupon_code
                     grand_total=grand_total-discount
@@ -409,10 +414,14 @@ def apply_coupon(request,total=0,quantity=0,cart_items=None):
             return JsonResponse({'no_coupon':'Not Valid Coupon'})
             
 def remove_coupon(request):
-    
-    coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
+    couponcode=request.session['appliedcode']
+    coupon=Coupon.objects.get(coupon_code__iexact=couponcode,is_valid=True,is_expired=False)
     coupon.user=None
     coupon.save()
+    if UsedCoupons.objects.filter(coupon_code__iexact=couponcode,email=request.user.email):
+        usedcoupons=UsedCoupons.objects.get(coupon_code__iexact=couponcode,email=request.user.email)
+        usedcoupons.delete()
+        
     return redirect('checkout')
     
 

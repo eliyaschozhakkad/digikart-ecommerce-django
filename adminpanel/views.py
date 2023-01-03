@@ -13,8 +13,8 @@ from store.forms import VariationForm
 from django.utils.text import slugify
 from django.db.models import Q 
 from django.core.paginator import Paginator
-from orders.models import Order
-from orders.forms import OrderFormAdmin
+from orders.models import Order,Sales
+from orders.forms import OrderFormAdmin,SalesForm
 from offers.models import Offer,Coupon
 from django.http import JsonResponse
 
@@ -266,24 +266,16 @@ def add_product(request):
     context={'productform':productform}
     if request.method == 'POST':
         form = ProductForm(request.POST,request.FILES)
-        # for field in form:
-        #         print("Field Error:", field.name,  field.errors,field.value())
+        
         if form.is_valid():
-            
-
             form.save()
             messages.info(request, "The product item is added")
-            
             return JsonResponse({'message':'valid'})
-
-            messages.info(request, "The product item is added")
-            return redirect("admin_product")
-        else:
-            
-            return JsonResponse({'message':'notvalid'})
-            
-            #return render(request, "admin/addproduct.html",{'productform':form})
-
+        
+        if form.errors:
+            for  field,errors in form.errors.items():
+                for error in errors:
+                    return JsonResponse({'errors': error})
     
     return render(request,"admin/addproduct.html",context)
 
@@ -377,9 +369,21 @@ def admin_order(request):
 @user_passes_test(lambda u:u.is_superadmin,login_url='admin_signin')
 def orderstatus(request,order_number):
     order=Order.objects.get(order_number=order_number)
+    
     orderform=OrderFormAdmin(instance=order)
+    if order.status=="Accepted":
+        orderform.fields['status'].choices = [('Accepted','Accepted'),('Ready for Shipping' , 'Ready for shipping')]
+    elif order.status=="Ready for Shipping":
+        orderform.fields['status'].choices = [('Ready for Shipping' , 'Ready for shipping'),('Shipped' , 'Shipped'),]
+    elif order.status=="Shipped":
+        orderform.fields['status'].choices = [('Shipped' , 'Shipped'),('Out for Delivery' , 'Out for Delivery'),]
+    elif order.status=="Out for Delivery":
+        orderform.fields['status'].choices = [('Out for Delivery' , 'Out for Delivery'),('Delivered', 'Delivered'),]
+    elif order.status=="Delivered":
+        orderform.fields['status'].choices = [('Delivered', 'Delivered'),]    
     if request.method == 'POST':
         form = OrderFormAdmin(request.POST,instance=order)
+        
         
         if form.is_valid():
             form.save()
@@ -418,6 +422,11 @@ def offer_edit(request, id):
             obj.save()
             messages.info(request, "The offer is edited")
             return redirect('admin_offer')
+        if offerform.errors:
+            for  field,errors in offerform.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
+        
 
 
     context = {'offerform': offerform}
@@ -453,6 +462,7 @@ def add_offer(request):
             
             obj.save()
             product.save()
+        
 
             
             
@@ -525,8 +535,39 @@ def coupon_edit(request,id):
     context = {'couponform': couponform}
     return render(request, "admin/editcoupon.html", context)
 
+@login_required()
+@user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
 def coupon_delete(request,id):
     deletecoupon=Coupon.objects.get(pk=id)
     deletecoupon.delete()
     messages.info(request, "The offer is deleted")
     return redirect("admin_coupon")
+
+
+@login_required()
+@user_passes_test(lambda u: u.is_superadmin, login_url='admin_signin')
+def admin_sales(request):
+    salesform=SalesForm()
+    if request.method=="POST":
+        salesform = SalesForm(request.POST)
+        if salesform.is_valid():
+            start_date = salesform.cleaned_data['start_date']
+            end_date = salesform.cleaned_data['end_date']
+      
+        
+            
+            order = Order.objects.filter(is_ordered=True,updated_at__gte=start_date,updated_at__lte=end_date).exclude(status="Cancelled")
+
+            
+            context = {
+            'orders': order
+            }
+            return render(request, "admin/salesreport.html", context)
+    else:
+        context={'salesform':salesform}
+        return render(request, "admin/sales.html", context)
+
+  
+
+    
+

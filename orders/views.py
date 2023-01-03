@@ -117,7 +117,7 @@ def payments_paypal(request,total=0):
     if couponexists:
         coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
         grand_total=grand_total-coupon.coupon_discount
-        coupon.is_valid=False
+        coupon.user=None
         coupon.save()
 
     #Order Confirmation Mail
@@ -456,7 +456,7 @@ def payment_success(request):
         if couponexists:
             coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
             grand_total=grand_total-coupon.coupon_discount
-            coupon.is_valid=False
+            coupon.user=None
             coupon.save()
 
         #Order Confirmation Mail
@@ -513,7 +513,7 @@ def order_complete(request):
         if couponexists:
             coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
             subtotal=subtotal-coupon.coupon_discount
-            coupon.is_valid=False
+            coupon.user=None
             coupon.save()
 
 
@@ -614,7 +614,7 @@ def cod(request,total=0,quantity=0):
         if couponexists:
             coupon=Coupon.objects.get(is_valid=True,is_expired=False,user=request.user)
             grand_total=grand_total-coupon.coupon_discount
-            coupon.is_valid=False
+            coupon.user=None
             coupon.save()
 
         

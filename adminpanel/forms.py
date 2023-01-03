@@ -76,6 +76,7 @@ class ProductForm(forms.ModelForm):
             raise forms.ValidationError("The price cannot be negative")
         if stock < 0:
             raise forms.ValidationError("The stock cannot be negative")
+    
 
 class OfferForm(forms.ModelForm):
 
@@ -87,6 +88,15 @@ class OfferForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for myField in self.fields:
             self.fields[myField].widget.attrs['class'] = 'form-control col-lg-12 col-md-12'
+    
+    def clean(self):
+        cleaned_data=super(OfferForm,self).clean()
+        offer_rate=cleaned_data.get('offer_rate')
+        
+        if offer_rate < 0:
+            raise forms.ValidationError("The offer rate cannot be negative")
+        if offer_rate >= 70:
+            raise forms.ValidationError("Maximum offer rate can be upto 70%")
 
 class EditOfferForm(forms.ModelForm):
 
@@ -98,6 +108,15 @@ class EditOfferForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for myField in self.fields:
             self.fields[myField].widget.attrs['class'] = 'form-control col-lg-12 col-md-12'
+    
+    def clean(self):
+        cleaned_data=super(EditOfferForm,self).clean()
+        offer_rate=cleaned_data.get('offer_rate')
+        
+        if offer_rate < 0:
+            raise forms.ValidationError("The offer rate cannot be negative")
+        if offer_rate >= 70:
+            raise forms.ValidationError("Maximum offer rate can be upto 70%")
 
         
 

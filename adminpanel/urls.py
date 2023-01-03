@@ -12,6 +12,8 @@ urlpatterns = [
     path("order/", views.admin_order, name='admin_order'),
     path("offer/", views.admin_offer, name='admin_offer'),
     path("coupon/", views.admin_coupon, name='admin_coupon'),
+    path("sales/", views.admin_sales, name='admin_sales'),
+   
 
     path("user/unblock/<int:id>/", views.unblock, name='unblock'),
     path("user/block/<int:id>/", views.block, name='block'),
